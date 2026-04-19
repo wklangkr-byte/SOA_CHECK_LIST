@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Makro SOA Checklist</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --red:#E63946;--red-dark:#c1121f;--red-light:#fde8ea;
+  --navy:#1d3557;--navy-mid:#457b9d;--navy-light:#a8dadc;
+  --bg:#f8f9fc;--surface:#ffffff;--surface2:#f1f3f8;
+  --border:#e2e6ef;--text:#1a2035;--text2:#5a6478;--text3:#9aa3b5;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);--shadow2:0 4px 24px rgba(0,0,0,0.12);
+  --radius:12px;--radius-sm:8px;--radius-xs:6px;
+  --topbar-h:60px;--sidebar-w:270px;
+}
+
+/* ===== BASE ===== */
+html,body{height:100%;overflow:hidden}
+body{font-family:"Sarabun",sans-serif;background:var(--bg);color:var(--text);font-size:15px;-webkit-font-smoothing:antialiased}
+
+/* ===== LOGIN ===== */
+#login-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1d3557 0%,#457b9d 55%,#a8dadc 100%);display:flex;align-items:center;justify-content:center;z-index:9999;padding:16px}
+.login-box{background:rgba(255,255,255,0.97);border-radius:20px;padding:40px 36px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo .logo-m{width:56px;height:56px;background:var(--red);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:26px;font-weight:700;color:white}
+.login-logo h1{font-size:19px;font-weight:700;color:var(--navy);margin-bottom:3px}
+.login-logo p{font-size:13px;color:var(--text2)}
+.login-field{margin-bottom:14px}
+.login-field label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:5px}
+.login-field input{width:100%;padding:12px 16px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:16px;font-family:inherit;outline:none;transition:border-color 0.2s;-webkit-appearance:none}
+.login-field input:focus{border-color:var(--navy-mid)}
+.login-btn{width:100%;padding:13px;background:var(--red);color:white;border:none;border-radius:var(--radius-sm);font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;margin-top:6px;transition:background 0.2s;-webkit-appearance:none;touch-action:manipulation}
+.login-btn:hover{background:var(--red-dark)}
+.login-btn:active{background:var(--red-dark);transform:scale(0.99)}
+.login-error{background:#fde8ea;color:var(--red-dark);border:1px solid #f5c2c7;border-radius:var(--radius-xs);padding:10px 14px;font-size:13px;margin-top:10px;display:none}
+
+/* ===== APP SHELL ===== */
+#app{display:none;height:100vh;flex-direction:column}
+#app.visible{display:flex}
+
+/* ===== TOPBAR ===== */
+.topbar{background:var(--navy);color:white;padding:0 16px;height:var(--topbar-h);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:var(--shadow2);position:relative;z-index:200}
+.topbar-left{display:flex;align-items:center;gap:10px}
+.topbar-logo{width:38px;height:38px;background:var(--red);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600;line-height:1.2}
+.topbar-subtitle{font-size:11px;opacity:0.6;margin-top:1px}
+.topbar-right{display:flex;align-items:center;gap:8px}
+.user-badge{background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 12px;font-size:12px;display:flex;align-items:center;gap:6px}
+.user-role{background:var(--red);border-radius:10px;padding:2px 7px;font-size:10px;font-weight:700}
+.logout-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:white;border-radius:var(--radius-xs);padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;touch-action:manipulation}
+.logout-btn:active{background:rgba(255,255,255,0.25)}
+
+/* hamburger for mobile */
+.hamburger{display:none;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:var(--radius-xs);width:36px;height:36px;align-items:center;justify-content:center;cursor:pointer;flex-direction:column;gap:4px;flex-shrink:0;padding:8px;touch-action:manipulation}
+.hamburger span{display:block;width:18px;height:2px;background:white;border-radius:1px;transition:all 0.25s}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* ===== LAYOUT ===== */
+.main-content{display:flex;flex:1;overflow:hidden;position:relative}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;transition:transform 0.3s ease,width 0.3s ease;flex-shrink:0;position:relative;z-index:100}
+.sidebar-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px;border-bottom:1px solid var(--border);flex-shrink:0}
+.sidebar-header-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px}
+.sidebar-collapse-btn{background:var(--surface2);border:1px solid var(--border);border-radius:6px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;color:var(--text2);transition:all 0.2s;touch-action:manipulation;flex-shrink:0}
+.sidebar-collapse-btn:hover{background:var(--border)}
+
+.group-btn{display:flex;align-items:center;gap:9px;width:100%;padding:9px 16px;background:none;border:none;text-align:left;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text2);transition:all 0.15s;border-left:3px solid transparent;touch-action:manipulation;min-height:44px}
+.group-btn:hover{background:var(--surface2);color:var(--text)}
+.group-btn:active{background:var(--surface2)}
+.group-btn.active{background:var(--red-light);color:var(--red-dark);border-left-color:var(--red);font-weight:600}
+.group-icon-wrap{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.group-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.group-count{flex-shrink:0;background:var(--surface2);border-radius:10px;padding:2px 7px;font-size:11px;font-weight:600;color:var(--text3)}
+.group-btn.active .group-count{background:rgba(230,57,70,0.15);color:var(--red-dark)}
+
+/* ===== SIDEBAR COLLAPSED (desktop) ===== */
+.sidebar.collapsed{width:56px;min-width:56px}
+.sidebar.collapsed .sidebar-header-title{display:none}
+.sidebar.collapsed .group-label{display:none}
+.sidebar.collapsed .group-count{display:none}
+.sidebar.collapsed .group-btn{padding:9px;justify-content:center;gap:0}
+.sidebar.collapsed .sidebar-header{justify-content:center;padding:14px 8px 8px}
+
+/* ===== OVERLAY (mobile) ===== */
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:150;touch-action:manipulation}
+
+/* ===== CONTENT ===== */
+.content-area{flex:1;overflow-y:auto;overflow-x:hidden;padding:20px;-webkit-overflow-scrolling:touch;min-width:0}
+
+/* ===== SEARCH ===== */
+.search-bar-wrap{margin-bottom:16px}
+.search-bar{display:flex;align-items:center;gap:10px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);padding:10px 16px;transition:border-color 0.2s}
+.search-bar:focus-within{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(69,123,157,0.1)}
+.search-bar input{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;color:var(--text);background:transparent;min-width:0}
+.search-bar input::placeholder{color:var(--text3)}
+.search-clear{background:var(--surface2);border:none;border-radius:50%;width:26px;height:26px;min-width:26px;cursor:pointer;font-size:12px;color:var(--text3);display:none;align-items:center;justify-content:center;touch-action:manipulation}
+
+/* ===== STATS ===== */
+.stats-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;flex:1;text-align:center;min-width:80px}
+.stat-card .num{font-size:22px;font-weight:700;color:var(--navy)}
+.stat-card .lbl{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ===== GROUP HEADER ===== */
+.group-header{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)}
+.group-header-icon{width:42px;height:42px;min-width:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--red-light)}
+.group-header-info h2{font-size:17px;font-weight:700;color:var(--navy)}
+.group-header-info p{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* ===== CHECK CARDS ===== */
+.checklist-grid{display:flex;flex-direction:column;gap:10px}
+.check-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow 0.2s,border-color 0.2s;cursor:pointer;touch-action:manipulation}
+.check-card:active{background:var(--surface2)}
+.check-card.expanded{border-color:var(--navy);box-shadow:var(--shadow2)}
+.card-header{padding:13px 16px;display:flex;align-items:flex-start;gap:10px;min-height:52px}
+.card-no{width:30px;height:30px;min-width:30px;background:var(--navy);color:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:2px}
+.card-title-wrap{flex:1;min-width:0}
+.card-title{font-size:14px;line-height:1.5;color:var(--text);font-weight:500}
+.freq-badge{display:inline-block;background:#e8f8f0;color:#157347;border-radius:20px;padding:2px 9px;font-size:11px;font-weight:600;white-space:nowrap;margin-top:4px}
+.card-expand-icon{color:var(--text3);font-size:14px;flex-shrink:0;margin-top:8px;transition:transform 0.25s;line-height:1}
+.check-card.expanded .card-expand-icon{transform:rotate(180deg)}
+.card-body{padding:0 16px 14px;display:none;border-top:1px solid var(--border)}
+.check-card.expanded .card-body{display:block;padding-top:12px}
+.detail-section{margin-bottom:10px}
+.detail-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.7px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.detail-label .dot{width:5px;height:5px;border-radius:50%;background:var(--red);display:inline-block;flex-shrink:0}
+.detail-text{font-size:13.5px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--surface2);border-radius:var(--radius-sm);padding:9px 12px}
+.photo-guide{font-size:13px;color:var(--navy-mid);background:#e8f4fd;border-radius:var(--radius-sm);padding:8px 12px;display:flex;gap:8px;align-items:flex-start}
+
+/* ===== ADMIN ===== */
+#admin-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:16px;border-top:3px solid #7209b7}
+.admin-panel-title{font-size:13px;font-weight:700;color:#7209b7;margin-bottom:10px}
+.admin-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.admin-stat{background:var(--surface2);border-radius:var(--radius-sm);padding:10px;text-align:center}
+.admin-stat .n{font-size:20px;font-weight:700;color:var(--navy)}
+.admin-stat .l{font-size:10px;color:var(--text3);margin-top:2px}
+
+/* ===== ALL GROUPS ===== */
+.all-groups{display:flex;flex-direction:column;gap:16px}
+.group-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.group-section-header{padding:12px 16px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.group-section-header h3{font-size:14px;font-weight:700;color:var(--navy);flex:1}
+.group-items{padding:8px}
+.group-item-row{padding:9px 10px;border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px;cursor:pointer;transition:background 0.15s;touch-action:manipulation;min-height:44px}
+.group-item-row:active{background:var(--surface2)}
+.group-item-row:hover{background:var(--surface2)}
+.item-no{width:26px;height:26px;min-width:26px;background:var(--navy);color:white;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.item-text{font-size:13px;color:var(--text);line-height:1.4;flex:1;min-width:0}
+
+/* ===== SEARCH RESULTS ===== */
+.search-result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;transition:all 0.2s;margin-bottom:10px;touch-action:manipulation}
+.search-result-card:active{background:var(--surface2)}
+.sr-meta{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+.sr-group-tag{background:var(--red-light);color:var(--red-dark);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600}
+.sr-no{background:var(--navy);color:white;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700}
+.sr-title{font-size:14px;font-weight:500;color:var(--text);line-height:1.5;margin-bottom:5px}
+.sr-method{font-size:12.5px;color:var(--text2);line-height:1.5}
+mark{background:#fff3cd;color:#856404;border-radius:2px;padding:0 2px}
+
+.empty-state{text-align:center;padding:50px 20px;color:var(--text3)}
+.empty-icon{font-size:40px;margin-bottom:10px}
+.empty-text{font-size:14px;font-weight:500;color:var(--text2)}
+.empty-sub{font-size:12px;margin-top:5px}
+
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.2s ease}
+
+/* ===== TABLET ===== */
+@media (max-width:900px){
+  :root{--sidebar-w:240px}
+  .topbar-subtitle{display:none}
+  .user-badge .user-name-text{display:none}
+  .admin-stats{grid-template-columns:repeat(2,1fr)}
+}
+
+/* ===== MOBILE ===== */
+@media (max-width:640px){
+  :root{--topbar-h:56px}
+  .hamburger{display:flex}
+  .sidebar{
+    position:fixed;
+    top:var(--topbar-h);
+    left:0;
+    height:calc(100vh - var(--topbar-h));
+    width:var(--sidebar-w) !important;
+    min-width:var(--sidebar-w) !important;
+    transform:translateX(-110%);
+    transition:transform 0.3s ease;
+    z-index:160;
+    box-shadow:var(--shadow2);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar.collapsed{width:var(--sidebar-w) !important;min-width:var(--sidebar-w) !important}
+  .sidebar.collapsed .group-label{display:block !important}
+  .sidebar.collapsed .group-count{display:block !important}
+  .sidebar.collapsed .sidebar-header-title{display:block !important}
+  .sidebar.collapsed .group-btn{padding:9px 16px !important;justify-content:flex-start !important;gap:9px !important}
+  .sidebar.collapsed .sidebar-header{justify-content:space-between !important;padding:14px 16px 8px !important}
+  .sidebar-collapse-btn{display:none}
+  #sidebar-overlay.visible{display:block}
+  .content-area{padding:14px}
+  .topbar{padding:0 12px}
+  .topbar-logo{width:34px;height:34px;font-size:15px}
+  .topbar-title{font-size:14px}
+  .user-role{display:none}
+  .stats-row{gap:8px}
+  .stat-card{min-width:0;padding:8px 10px}
+  .stat-card .num{font-size:18px}
+  .admin-stats{grid-template-columns:repeat(2,1fr)}
+  .login-box{padding:32px 24px}
+  .card-title{font-size:13.5px}
+  .detail-text{font-size:13px}
+}
+
+/* ===== VERY SMALL ===== */
+@media (max-width:360px){
+  :root{--sidebar-w:100vw}
+  .content-area{padding:10px}
+  .group-header-icon{width:36px;height:36px;min-width:36px}
+}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="logo-m">M</div>
+      <h1>Store Operations Audit</h1>
+      <p>Makro SOA Checklist System</p>
+    </div>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="กรอก Username" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="กรอก Password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="login-error">Username หรือ Password ไม่ถูกต้อง</div>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#bbb;text-align:center">SOA System v2.2 &middot; Makro Thailand</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" id="hamburger-btn" onclick="toggleMobileSidebar()" aria-label="เมนู">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-logo">M</div>
+      <div>
+        <div class="topbar-title">Store Operations Audit</div>
+        <div class="topbar-subtitle">Makro SOA Checklist</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="user-badge">
+        <span id="user-display" class="user-name-text">-</span>
+        <span class="user-role" id="role-display">-</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">ออก</button>
+    </div>
+  </div>
+  <div class="main-content">
+    <div id="sidebar-overlay" onclick="closeMobileSidebar()"></div>
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-header-title">หมวดหมู่</span>
+        <button class="sidebar-collapse-btn" id="collapse-btn" onclick="toggleSidebar()" title="ย่อ/ขยายเมนู">&#9664;</button>
+      </div>
+      <button class="group-btn active" onclick="showAll();closeMobileSidebar()" id="btn-all">
+        <div class="group-icon-wrap" style="background:#e8eaf6">&#128203;</div>
+        <span class="group-label">ทั้งหมด</span>
+        <span class="group-count" id="cnt-all">163</span>
+      </button>
+      <div id="group-list"></div>
+    </div>
+    <div class="content-area" id="content-area"></div>
+  </div>
+</div>
+
+<script>
+
+var DATA = [{"no":"1","group":"ลานจอด และพื้นที่นอกอาคาร","checklist":"ลานจอดรถมีความเป็นระเบียบ ไม่มีสิ่งกีดขวางทางเดินรถ และไม่กีดขวางพื้นที่จอดรถสำหรับผู้พิการ (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบพื้นที่ลานจอดรถหน้าสาขา หรือพื้นที่ที่กำหนดเป็นจุดจอดรถ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ลานจอด และพื้นที่นอกอาคาร"},{"no":"2","group":"ลานจอด และพื้นที่นอกอาคาร","checklist":"พื้นที่ทางเดินมีความเป็นระเบียบเรียบร้อย ไม่มีวัสดุที่อาจก่อให้เกิดการสะดุดหรือลื่น (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบพื้นที่โดยรอบอาคาร และลานจอดรถ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นทางเดินลาดจอดรถ และพื้นที่นอกอาคาร"},{"no":"3","group":"ลานจอด และพื้นที่นอกอาคาร","checklist":"ไฟส่องสว่างอยู่ในสภาพสมบูรณ์ ไม่ชำรุด และมีอุปกรณ์ครอบป้องกันการตกหล่นใส่พนักงาน และลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบไฟส่องสว่างลานจอดรถ และป้ายภายนอกอาคาร","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปตัวอย่างความปลอดภัยของหลอดไฟในแต่ละจุด"},{"no":"4","group":"ลานจอด และพื้นที่นอกอาคาร","checklist":"ร้านค้าเช่าบริเวณหน้าร้านสะอาด พร้อมให้บริการ และไม่มีอุปกรณ์กีดขวางพื้นที่โดยรอบ (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบร้านค้าเช่าทุกร้าน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปร้านผู้เช่า ภาพกว้าง"},{"no":"5","group":"ประตูเข้า - ออก ลูกค้า","checklist":"มีรถเข็น และตะกร้าเพียงพอ สะอาด และอยู่ในสภาพพร้อมใช้งาน (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบประตูทางเข้า–ออกลูกค้า มีรถเข็นเพียงพอ สะอาด และพร้อมใช้งาน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปประตูทางเข้าที่จัดเก็บรถเข็น"},{"no":"6","group":"ประตูเข้า - ออก ลูกค้า","checklist":"สื่อส่งเสริมการขายเป็นปัจจุบัน มองเห็นชัดเจน และอยู่ในสภาพสมบูรณ์","method":"1. ตรวจสอบสื่อส่งเสริมการขายด้านหน้า มองเห็นชัดเจน และอยู่ในสภาพสมบูรณ์","frequency":"","pictures":"ถ่ายรูปสื่อส่งเสริมการขาย"},{"no":"7","group":"จุดบริการลูกค้า CUSTOMER SERVICE","checklist":"เคาน์เตอร์บริการลูกค้าสะอาดเรียบร้อย และพนักงานพร้อมให้บริการ","method":"1 สำรวจพื้นที่จุดบริการลูกค้า มีพนักงานให้บริการ และมีความพร้อมให้บริการ \n2. พื้นที่จัดเก็บสิ่งของอย่างมีระเบียบ","frequency":"","pictures":"ถ่ายรูปพนักงานประจำเคาน์เตอร์"},{"no":"8","group":"จุดบริการลูกค้า CUSTOMER SERVICE","checklist":"พนักงานแต่งกายสะอาด ถูกต้องตามระเบียบ และกล่าวทักทายลูกค้าเมื่อมาติดต่อ","method":"1. ตรวจสอบพนักงาน Customer Service แต่งกายสะอาด ถูกต้องตามระเบียบ กล่าวทักทายลูกค้าอย่างสุภาพ","frequency":"","pictures":"ถ่ายรูปพนักงานประจำเคาน์เตอร์"},{"no":"9","group":"จุดบริการลูกค้า CUSTOMER SERVICE","checklist":"ไม่มีใบกำกับภาษีของลูกค้าค้างหรือจัดเก็บไว้ที่เคาน์เตอร์บริการ (ตรวจสอบอย่างน้อย 2 ครั้งในเวลาการเข้าตรวจสอบ)","method":"1. ตรวจสอบเคาน์เตอร์บริการลูกค้า เอกสารจัดวางเป็นระเบียบ ไม่มีใบกำกับภาษีค้าง (ต้นฉบับ/สำเนา เช่น Return / Replace / Reprint / VAT Refund)","frequency":"ตรวจสอบอย่างน้อย 2 ครั้งในเวลาการเข้าตรวจสอบ","pictures":"ถ่ายรูปพื้นที่ทำงานของจุดบริการลูกค้า"},{"no":"10","group":"จุดบริการลูกค้า CUSTOMER SERVICE","checklist":"สุ่มตรวจสอบหมายเลขโทรศัพท์สาขา สามารถใช้งานได้ตามปกติ และพนักงานพร้อมรับสาย","method":"1. โทรเข้าสาขาเพื่อตรวจสอบโทรศัพท์ใช้งานได้ มีพนักงานรับสาย และพูดจาสุภาพ\n2. รับสายภายใน 2 นาที","frequency":"","pictures":"ถ่ายรูปการทำงานของพนักงาน"},{"no":"11","group":"ช่องชำระเงิน CASHIER TILL","checklist":"อุปกรณ์แคชเชียร์ในแต่ละเครื่อง (Till) ทำงานได้ตามปกติ","method":"1. ตรวจสอบทุก Till ทุกเครื่องอยู่ในสถานะ Online\n2. หาก Offline ต้องมีการแจ้ง UVDesk","frequency":"","pictures":"กรณีถูกถ่ายรูป Till  online  หากไม่ถูกต้องให้ถ่ายรูป Till  ที่ Offline"},{"no":"12","group":"ช่องชำระเงิน CASHIER TILL","checklist":"แคชเชียร์ให้บริการอย่างเหมาะสม และบริหารจัดการคิวชำระเงินไม่เกิน 3 คิว (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบจำนวนคิว ไม่เกิน 3 คิว มีการเปิดเครื่องครบตามจำนวนพนักงานในกะ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปคิวลูกค้าที่จุดแคชเชียร์"},{"no":"13","group":"ช่องชำระเงิน CASHIER TILL","checklist":"แคชเชียร์กล่าวคำทักทาย แจ้งยอดเงินรับ–ทอน และส่งมอบเงินทอน/ บัตรเครดิต พร้อมใบเสร็จให้ลูกค้าทุกราย","method":"1. ตรวจการให้บริการแคชเชียร์ (อย่างน้อย 2 คน)\n  1.1  กล่าวสวัสดีลูกค้า\n  1.2 เมื่อรับชำระเงิน แจ้งยอดสินค้า สอบถามวิธีชำระเงิน กรณีเงินสด แจ้งยอดรับ และเงินทอน","frequency":"","pictures":"ถ่ายรูปแคชเชียร์ที่สุ่มตรวจ ไม่ให้ติดลูกค้า"},{"no":"14","group":"จุดแลกของแถม","checklist":"จุดแลกของแถมมีพนักงานประจำ สะอาด เป็นระเบียบ และมีการบันทึก หรือติดตามของแถมค้างอย่างครบถ้วน","method":"1. พื้นที่สะอาด เป็นระเบียบ มีสมุดคุมของแถมคงค้าง และมีการติดตามจากฝ่ายจัดซื้อ (ตรวจจากอีเมล)\n2. ตรวจสอบรายการคงค้างจาก Negative Stock (Grp 47)\n3. หากไม่มี ให้ระบุ NA","frequency":"","pictures":"ถ่ายรูปจุดแลกของแถม พร้อมสมุดคุม"},{"no":"15","group":"BAKERY","checklist":"มีพนักงานให้บริการลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. มีพนักงานประจำจุดให้บริการลูกค้า\n2. หากไม่พบ ให้ตรวจซ้ำหลัง 5 นาที (ถ่ายรูปก่อน–หลัง)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานผู้ให้บริกร"},{"no":"16","group":"BAKERY","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1. พนักงานแต่งกายถูกต้องตามระเบียบ และสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งการพนักงานขณะนั้น"},{"no":"17","group":"BAKERY","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจจาก List การแต่งกาย และตรวจพนักงานที่ปฏิบัติงานจริง","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"18","group":"BAKERY","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. พื้นที่สะอาด ไม่มีแมลง หรือสิ่งปนเปื้อนอาหาร","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่หน้าร้าน"},{"no":"19","group":"BAKERY","checklist":"เครื่องชั่ง และอุปกรณ์ต่างๆ สามารถใช้งานได้ตามปกติทุกเครื่อง","method":"1. เครื่องชั่งใช้งานได้ปกติ สามารถพิมพ์สติ๊กเกอร์ได้ มีขดลวด และมีเครื่องหมายรับรองชั่งตวงวัดถูกต้อง","frequency":"","pictures":"ถ่ายรูปเครื่องชั่งที่ใช้งาน"},{"no":"20","group":"BAKERY","checklist":"ตู้แช่สินค้าอุณหภูมิ 0–4°C อยู่ในเกณฑ์มาตรฐาน และไม่มีน้ำแข็งเกาะ","method":"1. สำรวจตู้แช่ในแผนกต้องมีอุณหภูมิถูกต้อง สภาพไม่มีน้ำแข็งเกาะ\n2. ตู้แช่สินค้าอุณหภูมิ 0–4°C","frequency":"","pictures":"ถ่ายภาพตู้แช่ ให้เห็นอุณหภูมิ"},{"no":"21","group":"BAKERY","checklist":"สินค้าหลัก (Core Assortment) มีวางจำหน่ายครบถ้วน และชั้นวางไม่ว่าง (สุ่มตรวจ 10 รายการ หลัง 10 โมง)","method":"1. ตรวจรายการสินค้า Group  68  หน้าร้านต้องมีครบตาม Core Assortment ที่กำหนด\n2. สุ่มตรวจ 10 รายการ (ทั้งหมดมี 48 รายการ) หลัง 10 โมง","frequency":"","pictures":"หากถูกต้องถ่ายรูปภาพพื้นที่ที่จัดวางสินค้า หากไม่ถูกถ่ายรูปช่องสินค้าที่ว่าง"},{"no":"22","group":"BAKERY","checklist":"ไม่มีสินค้าหมดอายุ หรือเสื่อมสภาพในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย สุ่มตรวจ 10 รายการ)","method":"1. ตรวจสอบสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่\n2. สุ่มตรวจ 10 รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกต้องถ่ายรูปตัวอย่างสินค้า ไม่ถูกต้องถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"23","group":"BAKERY","checklist":"มีป้ายราคา และป้ายส่งเสริมการขายถูกต้อง ครบถ้วน","method":"1. ตรวจพื้นที่ขายสินค้าต้องมีป้ายส่งเสริมการขายในแต่ละรอบ Makro Mail ครบถ้วน\n2. ข้อมูลมาจากการเรียกรายงาน \"Item List\"  และเลือก Column \"Makro Mail\"","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายราคาและสินค้า"},{"no":"24","group":"BAKERY","checklist":"การจัดวางป้ายราคาตรงกับสินค้า (สุ่มตรวจ 10 รายการ Grp 68 / 78 / 100 รวมกัน)","method":"1. สุ่มตรวจป้ายราคาสินค้า 10 รายการ (Grp 68 / 78 / 100 รวมกัน)","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"25","group":"BAKERY","checklist":"ห้องเย็น หรือห้องแช่แข็งสะอาด เป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่","method":"1. ตรวจสอบห้องเย็น หรือห้องแช่แข็งในกรณีที่ไม่ต้องเดินผ่านเข้าแผนก Bakery กรณีที่ไม่สามารถเข้าได้ ให้พนักงานถ่ายรูป\n2. การจัดเก็บสินค้าเป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่","frequency":"","pictures":"ถ่ายรูปภายในห้องแช่ของแผนก"},{"no":"26","group":"FRUIT & VEGETABLE","checklist":"มีพนักงานให้บริการลูกค้าประจำจุดชั่งสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีพนักงานคอยให้บริการลูกค้า\n2. หากไม่มีให้เดินกลับมาดูอีกครั้ง ผ่านไปอย่างน้อย 5 นาที  (ถ่ายรูปครั้งแรก และ 5 นาทีถัดมา)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานประจำจุด"},{"no":"27","group":"FRUIT & VEGETABLE","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1. ตรวจสอบพนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งการพนักงานขณะนั้น"},{"no":"28","group":"FRUIT & VEGETABLE","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน (ตรวจสอบเช้า - บ่าย)","method":"1. ดู List การแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"29","group":"FRUIT & VEGETABLE","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย มีความสะอาด มีสิ่งปนเปื้อนอาหารหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ขายในภาพกว้าง"},{"no":"30","group":"FRUIT & VEGETABLE","checklist":"ไม่มีอุปกรณ์กีดขวางทางเดินลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ไม่มีอุปกรณ์   กล่องสินค้า กีดขวางทางเดินลูกค้า\n2. หากเป็นการเติมสินค้าต้องมีพนักงานคอยเติมสินค้า  แต่ถ้าหากว่ามีสินค้าที่รอเติมกีดขวางโดยไม่มีพนักงาน  (ถ่ายรูปครั้งแรก  และ  10  นาทีถัดมาดูอีกครั้งและถ่ายรูป หากยังไม่มีตอบ No)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปทางเดินลูกค้า หรือรูปที่มีมีสิ่งกีดขวาง หากเป็นการเติมสินค้าหากไม่มีพนักงานถ่ายรูปแรก  และ รูปที่  2"},{"no":"31","group":"FRUIT & VEGETABLE","checklist":"เครื่องชั่ง และอุปกรณ์ต่างๆ สามารถใช้งานได้ตามปกติทุกเครื่อง","method":"สำรวจเครื่องชั่งสามารถใช้งานได้ และพิมพ์สติ๊กเกอร์ได้ มีขดลวด และเครื่องหมายชั่งตวงวัดสมบูรณ์","frequency":"","pictures":"ถ่ายรูปการใช้งานเครื่องชั่ง"},{"no":"32","group":"FRUIT & VEGETABLE","checklist":"มีอุปกรณ์สำหรับตัก หรือคีบ และถุงใส่สินค้าพร้อมให้บริการ (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีอุปกรณ์ ตัก คีบ ถุง พร้อมบริการทุกจุด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปอุปกรณ์จุดขาย"},{"no":"33","group":"FRUIT & VEGETABLE","checklist":"ตู้แช่สินค้าอุณหภูมิ 0–4°C และตู้แช่ผักใบอุณหภูมิ 6–8°C ถูกต้อง และมีสภาพใช้งานได้ไม่มีน้ำแข็งเกาะ","method":"1. สำรวจตู้แช่ในแผนก ต้องมีอุณหภูมิ ถูกต้อง สภาพไม่มีน้ำแข็งเกาะ  \n2. ตู้แช่เย็นผัก-ผลไม้ นาเข้า สินค้ากลุ่มเห็ด 0-4 องศา  ตู้แช่เย็นผักใบ 6-8 องศา","frequency":"","pictures":"ถ่ายภาพตู้แช่ ให้เห็นอุณหภูมิ"},{"no":"34","group":"FRUIT & VEGETABLE","checklist":"สินค้าจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจการจัดเรียงหน้าร้านของแผนก สินค้าพร้อมจำหน่าย  สินค้าจัดเต็มหน้าร้าน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการจัดเรียงสินค้า"},{"no":"35","group":"FRUIT & VEGETABLE","checklist":"ไม่มีสินค้าหมดอายุ หรือเสื่อมสภาพในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกถ่ายรูปตัวอย่างสินค้าที่สุ่ม หากไม่ถูกต้องถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"36","group":"FRUIT & VEGETABLE","checklist":"มีป้ายราคา และป้ายส่งเสริมการขายถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"37","group":"FRUIT & VEGETABLE","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"38","group":"FISH & SEA FOOD","checklist":"มีพนักงานให้บริการลูกค้าประจำจุดชั่งสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีพนักงานคอยให้บริการลูกค้า\n2.  หากไม่มีให้เดินกลับมาดูอีกครั้ง ผ่านไปอย่างน้อย  5 นาที  (ถ่ายรูปครั้งแรก  และ  5  นาทีถัดมา)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานประจำจุด"},{"no":"39","group":"FISH & SEA FOOD","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1.  ตรวจสอบการแต่งการผู้ให้บริการหน้าร้านมีการแต่งกายถูกต้องตามกฏระเบียบ และมีความสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งกายพนักงานขณะนั้น"},{"no":"40","group":"FISH & SEA FOOD","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน (ตรวจสอบเช้า - บ่าย)","method":"1. ดู List  ของการแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"41","group":"FISH & SEA FOOD","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย มีความสะอาด มีสิ่งปนเปื้อนอาหาร  มีกลิ่นเหม็นหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ขายในภาพกว้าง"},{"no":"42","group":"FISH & SEA FOOD","checklist":"ไม่มีอุปกรณ์กีดขวางทางเดินลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ไม่มีอุปกรณ์   กล่องสินค้า กีดขวางทางเดินลูกค้า\n2. หากเป็นการเติมสินค้าต้องมีพนักงานคอยเติมสินค้า  แต่ถ้าหากว่ามีสินค้าที่รอเติมกีดขวางโดยไม่มีพนักงาน  (ถ่ายรูปครั้งแรก  และ  10  นาทีถัดมาดูอีกครั้งและถ่ายรูป หากยังไม่มีตอบ No)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปทางเดินลูกค้า หรือรูปที่มีมีสิ่งกีดขวาง หากเป็นการเติมสินค้าหากไม่มีพนักงานถ่ายรูปแรก  และ รูปที่  2"},{"no":"43","group":"FISH & SEA FOOD","checklist":"เครื่องชั่ง และอุปกรณ์ต่างๆ สามารถใช้งานได้ตามปกติทุกเครื่อง","method":"1. สำรวจเครื่องชั่งสามารถใช้งานได้ และพิมพ์สติ๊กเกอร์ได้ มีขดลวด และเครื่องหมายชั่งตวงวัดสมบูรณ์","frequency":"","pictures":"ถ่ายรูปการใช้งานเครื่องชั่ง"},{"no":"44","group":"FISH & SEA FOOD","checklist":"มีอุปกรณ์สำหรับตัก หรือคีบ และถุงใส่สินค้าพร้อมให้บริการ (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีอุปกรณ์ ตัก คีบ ถุง พร้อมบริการทุกจุด\n2. อุปกรณ์ ต้องสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปอุปกรณ์จุดขาย"},{"no":"45","group":"FISH & SEA FOOD","checklist":"ตู้แช่สินค้าอุณหภูมิ 0–4°C และตู้แช่ปลาแล่อุณหภูมิ 0–2°C ถูกต้อง และมีสภาพใช้งานได้ไม่มีน้ำแข็งเกาะ","method":"1. สำรวจตู้แช่ในแผนก ต้องมีอุณหภูมิ ถูกต้อง สภาพไม่มีน้ำแข็งเกาะ  \n2. อาหารทะเลแห้ง และอื่นๆ ที่ฉลากกาหนดให้เก็บ 0-4 0C ให้จาหน่ายที่ตู้ควบคุมอุณหภูมิ 0-4 0C\n3. ประเภทตัดแต่งและแล่ วางจาหน่ายที่อุณหภูมิ 0-2 0C (±2) ตู้แช่เย็นปลาแซลมอน-ทูน่าตัดแต่งชิ้น 0-2 องศา","frequency":"","pictures":""},{"no":"46","group":"FISH & SEA FOOD","checklist":"สินค้าจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock","method":"1. สำรวจการจัดเรียงหน้าร้านของแผนก สินค้าพร้อมจำหน่าย  สินค้าจัดเต็มหน้าร้าน","frequency":"","pictures":"ถ่ายรูปการจัดเรียง"},{"no":"47","group":"FISH & SEA FOOD","checklist":"****ตู้ปลาเป็น เปิดวาว (ขอข้อมูล)","method":"","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":""},{"no":"48","group":"FISH & SEA FOOD","checklist":"การจัดเรียงสินค้าเป็นไปตามหลัก FIFO","method":"1. สำรวจสินค้าที่มีอายุบ่งบอก ที่มีการจัดเรียง มีการลำดับการเรียง FIFO  หรือไม่  ด้านหน้ามีอายุน้อยกว่าด้านหลัง","frequency":"","pictures":"ถ่ายรูปการวางจัดเรียง ที่มีการเรียงตามอายุ"},{"no":"49","group":"FISH & SEA FOOD","checklist":"ไม่มีสินค้าหมดอายุ หรือเสื่อมสภาพในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกถ่ายรูปตัวอย่างสินค้า หากไม่ถูกถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"50","group":"FISH & SEA FOOD","checklist":"มีป้ายราคา และป้ายส่งเสริมการขายถูกต้อง ครบถ้วน (ตรวจสอบเช้า - บ่าย)","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"51","group":"FISH & SEA FOOD","checklist":"การจัดวางป้ายราคาตรงกับสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"52","group":"BUTCHERY","checklist":"มีพนักงานให้บริการลูกค้าประจำจุดชั่งสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีพนักงานคอยให้บริการลูกค้า\n2.  หากไม่มีให้เดินกลับมาดูอีกครั้ง ผ่านไปอย่างน้อย  5 นาที  (ถ่ายรูปครั้งแรก  และ  5  นาทีถัดมา)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานประจำจุด"},{"no":"53","group":"BUTCHERY","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1.  ตรวจสอบการแต่งการผู้ให้บริการหน้าร้านมีการแต่งกายถูกต้องตามกฏระเบียบ และมีความสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งการพนักงานขณะนั้น"},{"no":"54","group":"BUTCHERY","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน (ตรวจสอบเช้า - บ่าย)","method":"1. ดู List  ของการแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"55","group":"BUTCHERY","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย มีความสะอาด มีสิ่งปนเปื้อนอาหารหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ขายในภาพกว้าง"},{"no":"56","group":"BUTCHERY","checklist":"ไม่มีอุปกรณ์กีดขวางทางเดินลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ไม่มีอุปกรณ์   กล่องสินค้า กีดขวางทางเดินลูกค้า\n2. หากเป็นการเติมสินค้าต้องมีพนักงานคอยเติมสินค้า  แต่ถ้าหากว่ามีสินค้าที่รอเติมกีดขวางโดยไม่มีพนักงาน  (ถ่ายรูปครั้งแรก  และ  10  นาทีถัดมาดูอีกครั้งและถ่ายรูป หากยังไม่มีตอบ No)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปทางเดินลูกค้า หรือรูปที่มีมีสิ่งกีดขวาง หากเป็นการเติมสินค้าหากไม่มีพนักงานถ่ายรูปแรก  และ รูปที่  2"},{"no":"57","group":"BUTCHERY","checklist":"เครื่องชั่ง และอุปกรณ์ต่างๆ สามารถใช้งานได้ตามปกติทุกเครื่อง","method":"1. สำรวจเครื่องชั่งสามารถใช้งานได้ และพิมพ์สติ๊กเกอร์ได้ มีขดลวด และเครื่องหมายชั่งตวงวัดสมบูรณ์","frequency":"","pictures":"ถ่ายรูปการใช้งานเครื่องชั่ง"},{"no":"58","group":"BUTCHERY","checklist":"มีอุปกรณ์สำหรับตัก หรือคีบ และถุงใส่สินค้าพร้อมให้บริการ (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีอุปกรณ์ ตัก คีบ ถุง พร้อมบริการทุกจุด\n2. อุปกรณ์ ต้องสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปอุปกรณ์จุดขาย"},{"no":"59","group":"BUTCHERY","checklist":"ตู้แช่สินค้าอุณหภูมิ 0 ถึง -1°C ถูกต้อง และมีสภาพใช้งานได้ไม่มีน้ำแข็งเกาะ","method":"1. สำรวจตู้แช่ในแผนก ต้องมีอุณหภูมิ ถูกต้อง สภาพไม่มีน้ำแข็งเกาะ \n2.ตู้แช่เย็นเนื้อสัตว์สด หมู ไก่ เนื้อ -1 ถึง 0  องศา","frequency":"","pictures":"ถ่ายภาพตู้แช่ ให้เห็นอุณหภูมิ"},{"no":"60","group":"BUTCHERY","checklist":"สินค้าจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจการจัดเรียงหน้าร้านของแผนก สินค้าพร้อมจำหน่าย  สินค้าจัดเต็มหน้าร้าน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการจัดเรียง"},{"no":"61","group":"BUTCHERY","checklist":"การจัดเรียงสินค้าเป็นไปตามหลัก FIFO และมีการระบุวันที่รับเข้าอย่างชัดเจน","method":"1. สำรวจสินค้าที่มีอายุบ่งบอก ที่มีการจัดเรียง มีการลำดับการเรียง FIFO  หรือไม่  ด้านหน้ามีอายุน้อยกว่าด้านหลัง","frequency":"","pictures":"ถ่ายรูปการวางจัดเรียง ที่มีการเรียงตามอายุ"},{"no":"62","group":"BUTCHERY","checklist":"ไม่มีสินค้าหมดอายุ หรือเสื่อมสภาพในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกถ่ายรูปตัวอย่างสินค้า ไม่ถูกถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"63","group":"BUTCHERY","checklist":"มีป้ายราคา และป้ายส่งเสริมการขายถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"64","group":"BUTCHERY","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"65","group":"FROZEN & DAIRY","checklist":"มีพนักงานให้บริการลูกค้าประจำจุดชั่งสินค้า หรือประจำจุดเครื่องชั่งแผนกชีส","method":"1. สำรวจพื้นที่มีพนักงานคอยให้บริการลูกค้า\n2.  หากไม่มีให้เดินกลับมาดูอีกครั้ง ผ่านไปอย่างน้อย  5 นาที  (ถ่ายรูปครั้งแรก  และ  5  นาทีถัดมา)","frequency":"","pictures":"ถ่ายรูปพนักงานประจำจุด"},{"no":"66","group":"FROZEN & DAIRY","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1.  ตรวจสอบการแต่งการผู้ให้บริการหน้าร้านมีการแต่งกายถูกต้องตามกฏระเบียบ และมีความสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งการพนักงานขณะนั้น"},{"no":"67","group":"FROZEN & DAIRY","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน (ตรวจสอบเช้า - บ่าย)","method":"1. ดู List  ของการแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"68","group":"FROZEN & DAIRY","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย มีความสะอาด มีสิ่งปนเปื้อนอาหารหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ขายในภาพกว้าง"},{"no":"69","group":"FROZEN & DAIRY","checklist":"ไม่มีอุปกรณ์กีดขวางทางเดินลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ไม่มีอุปกรณ์   กล่องสินค้า กีดขวางทางเดินลูกค้า\n2. หากเป็นการเติมสินค้าต้องมีพนักงานคอยเติมสินค้า  แต่ถ้าหากว่ามีสินค้าที่รอเติมกีดขวางโดยไม่มีพนักงาน  (ถ่ายรูปครั้งแรก  และ  10  นาทีถัดมาดูอีกครั้งและถ่ายรูป หากยังไม่มีตอบ No)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปทางเดินลูกค้า หรือรูปที่มีมีสิ่งกีดขวาง หากเป็นการเติมสินค้าหากไม่มีพนักงานถ่ายรูปแรก  และ รูปที่  2"},{"no":"70","group":"FROZEN & DAIRY","checklist":"เครื่องชั่ง และอุปกรณ์ต่างๆ สามารถใช้งานได้ตามปกติทุกเครื่อง","method":"1. สำรวจเครื่องชั่งสามารถใช้งานได้ และพิมพ์สติ๊กเกอร์ได้ มีขดลวด และเครื่องหมายชั่งตวงวัดสมบูรณ์","frequency":"","pictures":"ถ่ายรูปเครื่องชั่งที่ใช้งาน"},{"no":"71","group":"FROZEN & DAIRY","checklist":"ตู้แช่สินค้าอุณหภูมิ 0 ถึง -4°C ถูกต้อง และมีสภาพใช้งานได้ไม่มีน้ำแข็งเกาะ","method":"1. สำรวจตู้แช่ในแผนก ต้องมีอุณหภูมิ ถูกต้อง สภาพไม่มีน้ำแข็งเกาะ\n2. ตู้แช่เย็นสินค้าแช่เย็น แดร์รี่ และอื่นๆ 0-4 องศา    / ตู้แช่แข็ง -18 ถึง -22  องศา","frequency":"","pictures":"ถ่ายภาพตู้แช่ ให้เห็นอุณหภูมิ"},{"no":"72","group":"FROZEN & DAIRY","checklist":"สินค้าจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจการจัดเรียงหน้าร้านของแผนก สินค้าพร้อมจำหน่าย  สินค้าจัดเต็มหน้าร้าน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการจัดเรียง"},{"no":"73","group":"FROZEN & DAIRY","checklist":"การจัดเรียงสินค้าเป็นไปตามหลัก FIFO และมีการระบุวันที่รับเข้าอย่างชัดเจน","method":"1. สำรวจสินค้าที่มีอายุบ่งบอก ที่มีการจัดเรียง มีการลำดับการเรียง FIFO  หรือไม่  ด้านหน้ามีอายุน้อยกว่าด้านหลัง สุ่ม 5  รายการ","frequency":"","pictures":"ถ่ายรูปการวางจัดเรียง ที่มีการเรียงตามอายุ"},{"no":"74","group":"FROZEN & DAIRY","checklist":"ไม่มีสินค้าเสื่อมสภาพ หรือหมดอายุในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกถ่ายรูปตัวอย่างสินค้า ไม่ถูกถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"75","group":"FROZEN & DAIRY","checklist":"มีป้ายส่งเสริมการขาย และป้ายราคาสินค้าถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"76","group":"FROZEN & DAIRY","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"77","group":"READY TO EAT (RTE)","checklist":"มีพนักงานให้บริการลูกค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่มีพนักงานคอยให้บริการลูกค้า\n2.  หากไม่มีให้เดินกลับมาดูอีกครั้ง ผ่านไปอย่างน้อย  10 นาที  (ถ่ายรูปครั้งแรก  และ  10  นาทีถัดมา)","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพนักงานประจำจุด"},{"no":"78","group":"READY TO EAT (RTE)","checklist":"พนักงานแต่งกายถูกต้องตามระเบียบ และมีความสะอาดเรียบร้อย (ตรวจสอบเช้า - บ่าย)","method":"1.  ตรวจสอบการแต่งการผู้ให้บริการหน้าร้านมีการแต่งกายถูกต้องตามกฏระเบียบ และมีความสะอาด","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการแต่งการพนักงานขณะนั้น"},{"no":"79","group":"READY TO EAT (RTE)","checklist":"พื้นที่ปฏิบัติงานสะอาด ไม่มีแมลง หรือสิ่งที่อาจปนเปื้อนอาหาร (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย มีความสะอาด มีสิ่งปนเปื้อนอาหารหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่ขายในภาพกว้าง"},{"no":"80","group":"READY TO EAT (RTE)","checklist":"ตู้อบ และอุปกรณ์สามารถใช้งานได้","method":"1. สำรวจตู้อบมีการใช้งานอบสินค้าได้ครบทุกตู้","frequency":"","pictures":"ถ่ายรูปตู้อบที่ทำงานอยู่"},{"no":"81","group":"READY TO EAT (RTE)","checklist":"สายไฟตู้อบอยู่ในสภาพพร้อมใช้งาน และไม่กีดขวางการปฏิบัติงาน","method":"1. สำรวจบริเวณจุดขาย  สายไฟฟ้าตู้อบ อยุ่ในสภาพปลอดภัย และในพื้นที่ไม่มีสิ่งกึดขวางการทำงาน","frequency":"","pictures":"ถ่ายรูปบริเวณการทำงาน การต่อพ่วงปลั๊กต่าง ๆ"},{"no":"82","group":"READY TO EAT (RTE)","checklist":"สินค้าจัดเรียงเต็มชั้น พร้อมจำหน่าย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจการจัดเรียงหน้าร้านของแผนก สินค้าพร้อมจำหน่าย  สินค้าจัดเต็มหน้าร้าน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปการจัดเรียง"},{"no":"83","group":"READY TO EAT (RTE)","checklist":"ไม่มีสินค้าเสื่อมสภาพ หรือหมดอายุในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย สินค้าที่จัดวางมีสภาพที่พร้อมขายไม่เสียหาย หรือ ด้อยคุณภาพ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกต้องถ่ายรูปตัวอย่างสินค้า หากไม่ถูกต้องถ่ายรูปสินค้าที่เสื่อมสภาพให้เห็นอย่างชัดเจน"},{"no":"84","group":"READY TO EAT (RTE)","checklist":"มีป้ายส่งเสริมการขาย และป้ายราคาสินค้าถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"85","group":"READY TO EAT (RTE)","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"86","group":"BACK AREA & COLD ROOM","checklist":"ห้องเย็น หรือห้องแช่แข็งแผนก FRUIT & VEGETABLE สะอาด เป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่ และไม่มีสินค้าหมดอายุ","method":"1. สำรวจห้องเย็น พื้นที่ต้องสะอาด มีการจัดสินค้าเป็นระเบียบและสามารถนำออกได้  ไม่มีกลิ่น หรือของหมดอายุค้างอยู่\n2. อุณหภูมิถูกต้อง สินค้าผักและผลไม้จัดเก็บที่ห้องเย็นอุณหภูมิ 0-4 0C และ 6-8 0C ในส่วนของธัญพืชและเครื่องเทศ และผักผลไม้ท้องถิ่นจัดเก็บที่อุณหภูมิ 23-27 0C","frequency":"","pictures":"ถ่ายรูปภายในห้องแช่ของแผนก"},{"no":"87","group":"BACK AREA & COLD ROOM","checklist":"ห้องเย็น หรือห้องแช่แข็งแผนก BUTCHERY สะอาด เป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่ และไม่มีสินค้าหมดอายุ","method":"1. สำรวจห้องเย็น พื้นที่ต้องสะอาด มีการจัดสินค้าเป็นระเบียบและสามารถนำออกได้  ไม่มีกลิ่น หรือของหมดอายุค้างอยู่\n2. อุณหภูมิถูกต้อง สินค้าเนื้อสัตว์จัดเก็บในห้องแช่เย็นที่อุณหภูมิ 0-2 0C (±2) และห้องแช่แข็งที่อุณหภูมิ -18 0C ถึง -22 0C","frequency":"","pictures":"ถ่ายรูปภายในห้องแช่ของแผนก"},{"no":"88","group":"BACK AREA & COLD ROOM","checklist":"ห้องเย็น หรือห้องแช่แข็งแผนก FISH & SEA FOOD สะอาด เป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่ และไม่มีสินค้าหมดอายุ","method":"1. สำรวจห้องเย็น พื้นที่ต้องสะอาด มีการจัดสินค้าเป็นระเบียบและสามารถนำออกได้  ไม่มีกลิ่น หรือของหมดอายุค้างอยู่\n2. อุณหภูมิถูกต้อง  สินค้าแช่เย็นจัดเก็บที่อุณหภูมิ 0-4 0C และอาหารแช่แข็งที่อุณหภูมิ -18 0C ถึง -22 0C หอยแครง ปูเป็น เก็บที่อุณหภูมิ 23-27 0C","frequency":"","pictures":"ถ่ายรูปภายในห้องแช่ของแผนก"},{"no":"89","group":"BACK AREA & COLD ROOM","checklist":"ห้องเย็น หรือห้องแช่แข็งแผนก FROZEN & DAIRY สะอาด เป็นระเบียบ ไม่มีรถเข็นที่ติดแท็กรับสินค้าค้างอยู่ และไม่มีสินค้าหมดอายุ","method":"1. สำรวจห้องเย็น พื้นที่ต้องสะอาด มีการจัดสินค้าเป็นระเบียบและสามารถนำออกได้  ไม่มีกลิ่น หรือของหมดอายุค้างอยู่\n2. อุณหภูมิถูกต้อง วัตถุดิบแช่เย็น เช่น เนย, ไส้กรอก, ไส้ขนม จัดเก็บในห้องเย็น หรือตู้แช่เย็นที่ควบคุมอุณหภูมิ 0-4 °C\n3. วัตถุดิบแช่แข็ง เช่น โดสาเร็จรูป หรือเค้กสาเร็จรูป จัดเก็บในห้องแช่แข็ง ที่ควบคุมอุณหภูมิ (-18)-(-22) °C","frequency":"","pictures":"ถ่ายรูปภายในห้องแช่ของแผนก"},{"no":"90","group":"DRY FOOD","checklist":"พื้นที่ทำงานไม่มีการทิ้งกล่อง หรือวัสดุบนพื้นทางเดิน (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขายของ Dry Food  พื้นที่สะอาด เรียบร้อย","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":""},{"no":"91","group":"DRY FOOD","checklist":"ชั้นวางสินค้าสะอาด เป็นระเบียบ (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจ  Dry Food  สินค้าจัดวางเป็นระเบียบ ไม่มีเศษสิ่งสกปรก\n2. สินค้าจัดเป็นระเบียบ\n3. ไม่มีลังกระดาษทิ้งในพื้นที่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่โดยรวมของ Dry Food  หากตอบ No  ให้ถ่ายส่วนที่ไม่ถูกต้อง"},{"no":"92","group":"DRY FOOD","checklist":"พนักงานขับรถโฟล์คลิฟท์ และพนักงานที่กั้นพื้นที่แต่งกายถูกต้องตามหลักความปลอดภัย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจในพื้นที่ขณะมีการโหลดสินค้า เจ้าหน้าที่ขับรถโฟร์คลิฟ และผู้กันพื้นที่มีการแต่งกายที่ถูกต้องหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายภาพผู้ขับรถโฟร์คลิฟ และผู้กั้นเชือก"},{"no":"93","group":"DRY FOOD","checklist":"ไม่จอดรถโฟล์คลิฟท์หรือ Hand Pallet Truck ในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ทั้งหมดของ Dry Food  ต้องไม่มีการจอดรถโฟล์คลิฟท์ ในพื้นที่โดยไม่มีพนักงาน\n2. ในพื้นที่ต้องไม่มี Hand Truck pallet  จอดโดยไม่มีการใช้งาน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปเมื่อไม่ถูกต้อง"},{"no":"94","group":"DRY FOOD","checklist":"มีการกั้นพื้นที่ระหว่างการโหลดสินค้าอย่างถูกต้อง (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจในพื้นที่หากมีการโหลดสินค้า ต้องมีการกั้นพื้นที่ ทั้งด้านหน้าและด้านหลัง โดย มีพนักงานกั้นอยู่ด้วยทั้งด้านหน้าหรือหลัง","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกต้อง ให้ถ่ายรูปการทำงานที่พบ หากไม่ถูกต้องถ่ายรูปจุดที่ไม่ถูกต้อง"},{"no":"95","group":"DRY FOOD","checklist":"ไม่โหลดพาเลทสินค้าเกิน 3 พาเลทต่อล็อกสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจในพื้นที่ที่มีการโหลดสินค้า มีการโหลดเกิน  3  พาเลทหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกต้อง ให้ถ่ายรูปการทำงานที่พบ หากไม่ถูกต้องถ่ายรูปจุดที่ไม่ถูกต้อง"},{"no":"96","group":"DRY FOOD","checklist":"สินค้า และกองโปรโมชั่นจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขาย  และกองโปรโมชั่น มีสินค้าจัดวางเต็มชั้น พร้อมจำหน่าย\n2. หากมีสินค้าช่องว่าง ให้ถ่ายรูป และรอ  10 นาที หากยังไม่มีการเติม ให้ตอบ No","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกต้อง ถ่ายรูปการจัดวางสินค้า  ไม่ถูกต้อง ถ่ายรูปส่วนที่ไม่ถูกต้อง หากสินค้าว่างถ่ายรูปแรก และอีก  10  นาทีให้ถ่ายอีกรูปว่าจัดวางหรือไม่"},{"no":"97","group":"DRY FOOD","checklist":"ไม่มีสินค้าเสื่อมสภาพ หรือหมดอายุในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุ หรือ เสื่อมสภาพ หรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกถ่ายรูปตัวอย่างสินค้า ไม่ถูกถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"98","group":"DRY FOOD","checklist":"มีป้ายส่งเสริมการขาย และป้ายราคาสินค้าถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"99","group":"DRY FOOD","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"100","group":"NON FOOD","checklist":"มีพนักงานให้ข้อมูลลูกค้าประจำแผนกเครื่องใช้ไฟฟ้าในแต่ละกะการทำงาน (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่สินค้าเครื่องใช้ไฟฟ้าต้องมีพนักงานประจำเพื่อให้ข้อมูลลูกค้า","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากมีพนักงาน ให้ถ่ายรูปพนักงานประจำจุด หากไม่มี ให้ถ่ายในพื้นที่ที่ไม่มีพนักงาน"},{"no":"101","group":"NON FOOD","checklist":"พื้นที่ทำงานไม่มีการทิ้งกล่อง หรือวัสดุบนพื้นทางเดิน (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ขายของ NonFood  สินค้าจัดวางเป็นระเบียบ ไม่มีเศษสิ่งสกปรก\n2. สินค้าจัดเป็นระเบียบ\n3. ไม่มีลังกระดาษทิ้งในพื้นที่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปพื้นที่โดยรวมของ Non Food  หากตอบ No  ให้ถ่ายส่วนที่ไม่ถูกต้อง"},{"no":"102","group":"NON FOOD","checklist":"ไม่จอดรถโฟล์คลิฟท์หรือ Hand Pallet Truck ในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจพื้นที่ทั้งหมดของ Non Food  ต้องไม่มีการจอดรถโฟล์คลิฟท์ ในพื้นที่โดยไม่มีพนักงาน\n2. ในพื้นที่ต้องไม่มี Hand Truck pallet  จอดโดยไม่มีการใช้งาน","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถ่ายรูปเมื่อไม่ถูกต้อง"},{"no":"103","group":"NON FOOD","checklist":"ไม่โหลดพาเลทสินค้าเกิน 3 พาเลทต่อล็อกสินค้า (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจในพื้นที่ที่มีการโหลดสินค้า มีการโหลดเกิน  3  พาเลทหรือไม่","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกต้อง ให้ถ่ายรูปการทำงานที่พบ หากไม่ถูกต้องถ่ายรูปจุดที่ไม่ถูกต้อง"},{"no":"104","group":"NON FOOD","checklist":"มีการกั้นพื้นที่ระหว่างการโหลดสินค้าอย่างถูกต้อง (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจในพื้นที่หากมีการโหลดสินค้า ต้องมีการกั้นพื้นที่ ทั้งด้านหน้าและด้านหลัง โดย มีพนักงานกั้นอยู่ด้วยทั้งด้านหน้าและหลัง","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"หากถูกต้อง ให้ถ่ายรูปการทำงานที่พบ หากไม่ถูกต้องถ่ายรูปจุดที่ไม่ถูกต้อง"},{"no":"105","group":"NON FOOD","checklist":"สินค้า และกองโปรโมชั่นจัดเรียงเต็มชั้น พร้อมจำหน่าย ไม่มี Out of Stock","method":"1. สำรวจพื้นที่ขาย  และกองโปรโมชั่น มีสินค้าจัดวางเต็มชั้น พร้อมจำหน่าย\n2. หากมีสินค้าช่องว่าง ให้ถ่ายรูป และรอ  10 นาที หากยังไม่มีการเติม ให้ตอบ No","frequency":"","pictures":"ถูกต้อง ถ่ายรูปการจัดวางสินค้า  ไม่ถูกต้อง ถ่ายรูปส่วนที่ไม่ถูกต้อง หากสินค้าว่างถ่ายรูปแรก และอีก  10  นาทีให้ถ่ายอีกรูปว่าจัดวางหรือไม่"},{"no":"106","group":"NON FOOD","checklist":"ไม่มีสินค้าเสื่อมสภาพ หรือชำรุดในพื้นที่ขาย (ตรวจสอบเช้า - บ่าย)","method":"1. สำรวจสินค้าในพื้นที่ขาย มีสินค้าหมดอายุหรือไม่ \n  สุ่ม  10  รายการ","frequency":"เช้า - บ่าย เก็บภาพ 2 ภาพ","pictures":"ถูกถ่ายรูปตัวอย่างสินค้า ไม่ถูกถ่ายรูปสินค้าที่หมดอายุโดยถ่ายให้เห็นวันที่หมดอายุ"},{"no":"107","group":"NON FOOD","checklist":"มีป้ายส่งเสริมการขาย และป้ายราคาสินค้าถูกต้อง ครบถ้วน","method":"1.  ตรวจสอบป้ายราคาของ จากข้อมูล Item List ราคาสินค้าเมลล์ถูกต้องครบถ้วน (5 รายการ)\n2. สุ่มตรวจป้ายราคาสินค้าอื่น  5 รายการ  ใช้ HHT","frequency":"","pictures":"ถ่ายรูปตัวอย่างป้ายส่งเสริมการขาย  หากไม่ถูกต้องถ่ายรูปป้ายที่ไม่ถูกต้อง"},{"no":"108","group":"NON FOOD","checklist":"การจัดวางป้ายราคาตรงกับสินค้า","method":"1. สุ่มตรวจป้ายราคาสินค้า  10 รายการ","frequency":"","pictures":"ถ่ายรูปป้ายราคากับสินค้า"},{"no":"109","group":"GOODS RECEIVING","checklist":"เครื่องชั่งสำหรับรับสินค้าสามารถใช้งานได้ตามปกติทุกเครื่อง","method":"1.  ตรวจสอบเครื่องชั่งในการรับสินค้าทุกแผนก  สามารถใช้งานได้ และทั้ง 4  มุม สามารถชั่งได้เท่ากัน","frequency":"","pictures":"ถูกต้องถ่ายรูปเครื่องชั่งประจำจุดต่าง ๆ  หากไม่ถูกต้อง ถ่ายเฉพาะเพครื่องชั่งที่ใช้งานไม่ได้"},{"no":"110","group":"GOODS RECEIVING","checklist":"พื้นที่โหลดสินค้า และพื้นที่ด้านหลังแผนก GR สะอาด เป็นระเบียบ","method":"1. สำรวจพื้นที่ด้านหลังของ GR  มีการจัดสินค้าเป็นระเบียบ รวมถึงการจัดเก็บสินค้าในเต็นท์\n2. สำรวจการจัดเก็บสินค้าตู้คอนเทนเนอร์ มีการจัดเก็บสินค้าอย่างมีระเบียบสินค้าที่จัดเก็บไม่ปะปนกับสินค้าที่ใช้อุณหภูมิ ต่างกัน","frequency":"","pictures":"หากถูกต้อง ถ่ายรูปการจัดเก็บสินค้า หากไม่ถูกต้อง ถ่ายรูปการปฏิบัติงานที่ไม่ถูกต้อง"},{"no":"111","group":"GOODS RECEIVING","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน","method":"1. ดู List  ของการแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"112","group":"GOODS RECEIVING","checklist":"ตรวจสอบการจัดเก็บเอกสาร หรือใบอนุญาตต่างๆ ที่ออกโดยกรมปศุสัตว์ (Department of Livestock Development - DLD)","method":"1. ดึงรายงานการรับสินค้าปศุสัตว์ย้อนหลัง  1 สัปดาห์จากระบบ RA-Store Operation หมวด Goods Receiving หัวข้อ DLD GR List \n2. เลือกการรับสินค้า  2  วันและตรวจสอบความถูกต้อง และความครบถ้วนของจำนวนการรับกับใบอนุญาต (ร.3/ ร.4/ ร.5) และใบรับรองที่จกหน่ายเนื้อสัตว์","frequency":"","pictures":"ถ้าถูกถ่ายรูปใบอนุญาต หากผิด ให้ถ่ายรายการที่ดึงจาก RA"},{"no":"113","group":"TENT","checklist":"สินค้าที่จัดวางในเต็นท์ Dry Food/ Non Food มีการจัดวางเป็นระเบียบ และมีการระบุวันที่รับเข้าอย่างชัดเจน","method":"1. สำรวจการจัดเก็บสินค้าทุกเต็นท์ มีความเป็บระเบียบหรือไม่ \n2. สินค้าอยู่ในสภาพพร้อมขาย  \n3. ไม่ปะปนกับสินค้ารับฝาก","frequency":"","pictures":"หากถูกต้อง ถ่ายรูปการจัดเก็บสินค้า หากไม่ถูกต้อง ถ่ายรูปการปฏิบัติงานที่ไม่ถูกต้อง"},{"no":"114","group":"TENT","checklist":"มีการจัดทำสมุดคุมเพื่อบันทึกจำนวน และมีการลงบันทึกเมื่อมีการนำสินค้าเข้า และนำสินค้าออก (Stock Location)","method":"1.ตรวจสอบการจัดทำสมุดคุม  มีการลงเป็นปัจจุบัน","frequency":"","pictures":"ถ่ายรูปสมุดคุม"},{"no":"115","group":"CONTAINER","checklist":"สินค้าที่จัดวางในตู้คอนเทนเนอร์ มีการจัดวางเป็นระเบียบ สะอาดไม่มีกลิ่น","method":"1. สำรวจการจัดเก็บสินค้า และ ลักษณะภายใน","frequency":"","pictures":"ถ่ายรูปการตรวจสอบ"},{"no":"116","group":"CONTAINER","checklist":"มีการจัดทำสมุดคุมเพื่อบันทึกจำนวน และมีการลงบันทึกเมื่อมีการนำสินค้าเข้า และนำสินค้าออก","method":"1.ตรวจสอบการจัดทำสมุดคุม  มีการลงเป็นปัจจุบัน","frequency":"","pictures":"ถ่ายรูปสมุดคุม"},{"no":"117","group":"CONTAINER","checklist":"ตู้คอนเทนเนอร์มีอุณหภูมิ -18 ถึง -22°C และมีการตรวจสอบประจำวันโดย GA","method":"1. สำรวจการจัดเก็นสินค้าในตู้คอนแทนเนอร์  อุณหภูมิช่วง -18 ถึง - 22 องศา\n (ห้องเก็บสินค้าแช่แข็ง / ตู้คอนเทนเนอร์เก็บสินค้าแช่แข็ง)","frequency":"","pictures":"ถูกต้องถ่ายรูปอุณหภูมิ หรือ การตรวจอุณหภูมิของ GA  หากไม่ถูกต้องถ่ายสิ่งที่ตรวจพบไม่ถูกต้อง"},{"no":"118","group":"CONTAINER","checklist":"ตู้คอนเทนเนอร์มีการจัดเก็บสินค้าถูกประเภท โดยตู้แช่เย็นจัดเก็บสินค้า Chill และตู้แช่แข็งจัดเก็บสินค้า Frozen","method":"1. สำรวจการจัดเก็บสินค้าในตู้คอนเทนเนอร์ มีการจัดเก็บสินค้าประเภทดียวกันหรือไม่ \n2. การนำเข้าออกมีการบันทึกการนำเข้า ออก","frequency":"","pictures":"ถูกต้องถ่ายรูปสินค้าที่จัดเก็บ และถ่ายสมุดคุม หากไม่ถูกต้อง ถ่ายสิ่งที่ตรวจพบไม่ถูกต้อง"},{"no":"119","group":"O2O","checklist":"สินค้ามีการกำหนด Location และจัดเก็บอย่างถูกต้อง","method":"1.ตรวจสอบข้อมูล  3  Order จาก  HHT Picker  ว่ามี Item No Location หรือไม่","frequency":"","pictures":""},{"no":"120","group":"O2O","checklist":"พื้นที่ Staging Lane ชัดเจน และเพียงพอต่อคำสั่งซื้อ","method":"1. สำรวจพื้นที่ O2O มีการกำหนดพื้นที่ Staging Lane  อย่างชัดเจน เพียงพอกับจำนวนคำสั่งซื้อ","frequency":"","pictures":"ถูกต้อง ถ่ายรูปพื้นที่วางสินค้า หากไม่ถูกต้อง ถ่ายรูปสิ่งที่ตรวจพบว่าไม่ถูกต้อง"},{"no":"121","group":"O2O","checklist":"กล่องดำ กล่องแดง และกล่อง VIP อยู่ในสภาพสมบูรณ์พร้อมใช้งาน","method":"1. สำรวจพื้นที่ O2O ดูสภาพ กล่องแดง กล่อง ViP  กล่องดำ ที่ใช้งาน และที่จัดเก็บสภาพสมบูรณ์หรือไม่","frequency":"","pictures":"ถูกต้อง ถ่ายสภาพที่สมบูรณ์จากที่จัดเก็บ (มีจำนวนมาก) หากไม่ถูกต้อง ถ่ายรูปสิ่งที่ตรวจพบว่าไม่ถูกต้อง"},{"no":"122","group":"O2O","checklist":"มีการตรวจนับอุปกรณ์เป็นประจำทุกเดือน","method":"1. ตรวจการจัดส่ง File  ในเมลที่ต้องตรวจนับและส่งทุกวันที่  15 ของเดือน ให้ตรวจเดือนปัจจุบันหรือเดือนก่อนหน้า หากเข้าตรวจหลังก่อนวันที่  15 ในแต่ละเดือน","frequency":"","pictures":"ถ่ายรูปเมลที่จัดส่ง"},{"no":"123","group":"O2O","checklist":"การจัดสินค้าควบคุมอุณหภูมิใช้ลังดำในการจัดสินค้าพร้อมใส่แผ่นเจล","method":"1. ในขณะเดินสำรวจ สุ่มตรวจดูจาก Picker  ที่จัดสินค้า ดูจาก Order หากมีสินค้าที่ต้องควบคุมอุณหภูมิ ต้องใช้อุปกรณ์ที่ถูกต้อง พร้อมใส่แผ่นเจล","frequency":"","pictures":"ถ่ายรูป Order  จากหน้า HHT  และอุปกรณ์ที่ใช้"},{"no":"124","group":"O2O","checklist":"การจัดสินค้าทั่วไป (ไม่รวมสินค้าขนาดใหญ่) ใช้ลังแดง","method":"1.ในขณะเดินสำรวจ สุ่มตรวจดูจาก Picker ที่จัดสินค้า หากเป็นสินค้าทั่วไปมีการใช้ลังแดงหรือไม่","frequency":"","pictures":"ถ่ายรูป Order  จากหน้า HHT  และอุปกรณ์ที่ใช้"},{"no":"125","group":"O2O","checklist":"การจัด Order รายละเอียดของ Location ถูกต้อง (สุ่มตรวจ Pick สินค้ากับ Picker 1 Order)","method":"1.ในขณะที่เดินสำรวจให้สุ่มตรวจการ Pick 1 order  กับ Picker เพื่อตรวจสอบ Location ในแต่ละสินค้า ทั้ง Order  ถูกต้องหรือไม่","frequency":"","pictures":"ให้ถ่ายตัวอย่าง Location จริง กับ Location ใน HHT"},{"no":"126","group":"O2O","checklist":"ตู้แช่เย็น 0–4°C ตู้แช่แข็ง –18°C และตู้แช่แผ่นเจล –30°C และมีการตรวจสอบประจำวันโดย GA","method":"1, สำรวจตู้แช่เย็น  ตู้แช่แข็ง ต้องมีอุณหภูมิที่ถูกต้อง และมีตารางการตรวจสภาพจาก GA และมีความสะอาดไม่มีกลิ่น  การแช่สินค้าชนิดสินค้าตรงกับการใช้งานของตู้","frequency":"","pictures":"ให้ถ่ายรูปการตรวจสภาพของ GA และสภาพตู้"},{"no":"127","group":"O2O","checklist":"พนักงานขับรถไม่เข้าพื้นที่สาขา และรอรับสินค้าที่จุดโหลดสินค้าที่กำหนด","method":"1, ในขณะที่เดินสำรวจ ให้สังเกตในพื้นที่ O2O มีพนักงานขับรถขนส่งเข้าพื้นที่หรือไม่","frequency":"","pictures":"ถ่ายเมื่อไม่ถูกต้อง โดยให้ถ่ายรูปพนักงานขนส่งที่อยู่ในพื้นที่ O2O"},{"no":"128","group":"O2O","checklist":"มีสมุดควบคุมการเบิก–คืนกุญแจรถทุกวัน","method":"1. ตรวจสอบการควบคุมกุญแจรถรายการเดือนที่ตรวจสอบ ต้องมีสมุดคุม และมีการรับ-คืนทุกวัน (เฉพาะรถของแม็คโคร)","frequency":"","pictures":"ถูกต้อง ถ่ายรูปสมุดคุมที่มีการบันทึก  หากไม่ถูกต้อง ให้ถ่ายรายการที่ไม่ถูกต้อง"},{"no":"129","group":"O2O","checklist":"สินค้า Short pick ไม่มีจัดเรียงหน้าร้าน (สุ่มตรวจ 3 รายการ)","method":"1. ให้ O2O เรียกรายงาน  Short Pick ล่าสุด  3  รายการ (เวลาไม่เกิน 30 นาที)  และตรวจสอบกับพื้นที่ว่ามีสินค้าอยู่หรือไม่  พร้อมกับตรวจ Location  ด้วยว่าถูกต้องหรือไม่","frequency":"","pictures":"ถูกต้อง ถ่ายรูปรายการ short  กับชั้นวางสินค้า หากไม่ถูกต้อง ถ่ายรูป รายการ Short กับชั้นวางสินค้าที่มีสินค้า"},{"no":"130","group":"O2O","checklist":"ข้อ Complain มีการแก้ไข และปิด Case ครบถ้วน","method":"**  ตรวจสอบเมลล์จาก   ย้อนหลัง 3 วัน หากพบให้ตรวจสอบ  complain  และตรวจสอบการปิดเคสของสาขา หากเกินกว่า SLA ถือว่าไม่ถูกต้อง \n- Critical  (ผิดกฏหมาย มีผลต่อสุขภาพลูกค้า มีผลต่อชื่อเสียงบริษัท) ติดต่อลูกค้า 30  นาที ชี้แจงภายใน  24 ชม\n - Major  (มีผลต่อคุณภาพ  การใช้งานที่มีนัยสำคัญ การให้บริการของพนักงาน ราคาสินค้า)ติดต่อลูกค้า 30 นาที ชี้แจง 3 วัน\n  - Minor (คุณภาพไม่สอดคล้องแต่ไม่มีผลกระทบด้านคุณภาพด้านการใช้งาน สต็อกสินค้า  ความครบถ้วนของสินค้า) ติดต่อลูกค้าภายใน 30 นาที ชี้แจงการแก้ไข 7 วัน","frequency":"","pictures":"ถูกต้อง ถ่ายภาพ E-mail ที่สาขาตอบกลับเพื่อปิดเคส"},{"no":"131","group":"O2O","checklist":"พนักงานสวมใส่อุปกรณ์คุ้มครองความปลอดภัยส่วนบุคคล (PPE) ตามลักษณะความเสี่ยงของงาน","method":"1. ดู List  ของการแต่งกาย และตรวจพนักงานที่ทำงานขณะนั้นสวมใส่หรือไม่","frequency":"","pictures":"ถ่ายรูปพนักงานแต่ละจุด"},{"no":"132","group":"O2O","checklist":"Pick up at Store มีการรับสินค้าโดยการใส่รหัส OTP","method":"1. ตรวจรายการ Pick Up at store   4  Week จนถึงวันที่ตรวจสอบ\n2, ตรวจสอบรายการ Pick up at store  กับ สถานะการรับสินค้า มีการใส่รหัส OTP  หรือไม่ หรือ เป็นการกดข้ามขั้นตอน การใส่รหัส","frequency":"","pictures":"ถ่ายรูปรายงาน"},{"no":"133","group":"SAFETY","checklist":"Stock อุปกรณ์ PPE ที่มีอยู่จริงตรงกับสต็อกในระบบ PPE Management","method":"1. ดูจำนวนสต็อกที่คงเหลือในระบบ PPE และตรวจนับกับอุปกรณ์จริงจำนวน 2 รายการ","frequency":"","pictures":"ถ่ายภาพอุปกรณ์ที่ตรวจนับ"},{"no":"134","group":"SAFETY","checklist":"มีการตรวจ Safety OEP อย่างน้อยวันละ 2 ครั้ง และมีการแก้ไข Action","method":"1. ขอดูรายงาน OEP  ในระบบ Safety ของจป ในวันก่อนหน้า ต้องมีการตรวจสอบ 2 ครั้ง รอบ เช้า และ บ่าย  และสถานะเป็น Complate  และหากมีรายการที่ตอบ No. กดดู Action หากมีข้อผิดพลาด","frequency":"","pictures":"ถ่ายหน้า OEP  ในวันที่ตรวจ"},{"no":"135","group":"SAFETY","checklist":"Safety มีการประชุุมผลการดำเนินงานด้านความปลอดภัย F2F กับ SGM รายสัปดาห์","method":"1. เรียกรายงานการประชุมสัปดาห์ก่อนที่จัดส่งให้ SGM หน้าเข้าตรวจ (จัดทำสัปดาห์ละครั้ง)","frequency":"","pictures":"ถ่ายรูปรายงานการประชุม"},{"no":"136","group":"SAFETY","checklist":"มีการประชุมคณะกรรมการความปลอดภัยฯ ประจำเดือนครบถ้วน","method":"1.เรียกรายงานการประชุมคณะกรรมการความปลอดภัยฯ รายเดือน  โดยตรวจจากรายเดือนก่อนหน้า หากในเดือนที่ตรวจมีการจัดทำแล้ว ให้ตรวจจากรายงานที่จัดทำแล้ว","frequency":"","pictures":"ถ่ายรูปรายงานการประชุม"},{"no":"137","group":"SAFETY","checklist":"ผู้รับเหมาปฏิบัติงานตาม Work Permit ที่ได้รับอนุมัติ","method":"1. ตรวจสอบสมุด รปภ เพื่อดูว่ามีการเข้าทำงานของผู้รับเหมาในเดือนนั้น หรือเดือนก่อนหน้าหรือไม่\n2. สอบถามเพื่อเป็นการ Confirm ในเดือนก่อนหน้ามีผู้รับเหมาเข้าทำงานที่สาขาหรือไม่  (ถามจากจป.  และ GA)  หากมีให้ตรวจสอบเอกสาร Work Permit  ในเรื่องที่เข้าตรวจสอบ โดยเอกสารต้องมีการอนุมัติครบทั้ง GA / Duty และ Safety","frequency":"","pictures":"ถ่ายรูปรายการหน้าสมุดรปภ  กับเอกสาร Work Promit"},{"no":"138","group":"DEPOSIT GOODS","checklist":"มีการรับฝากสินค้าไม่เกิน 5 วัน นับจากวันที่ซื้อสินค้า","method":"1. เรียกรายงาน Deposit Report  Summary  เพื่อดูรายการที่ฝากมีรายการเกิน   5 วันหรือไม่\n2. สาขาที่ไม่มีการรับฝากสินค้าให้ตอบ NA","frequency":"","pictures":"ถ่ายหน้ารายงาน"},{"no":"139","group":"DEPOSIT GOODS","checklist":"ไม่มีการรับฝากสินค้าอาหารสด","method":"1. เมื่อสำรวจห้องเย็นต่าง ๆ ต้องตรวจสอบด้วยว่ามีสินค้าลูกค้าที่ซื้อแล้วทำฝากไว้หรือไม่\n2. สาขาที่ไม่มีการรับฝากสินค้าให้ตอบ NA","frequency":"","pictures":"ถูกต้องไม่ต้องถ่ายภาพ หากไม่ถูกต้องให้ถ่ายภาพสินค้าที่มีการจัดเก็บ"},{"no":"140","group":"DEPOSIT GOODS","checklist":"ใบเสร็จรับเงินถูกจัดเก็บที่ Telesale และมีการคีย์รับฝากสินค้าครบถ้วน รวมถึงมีการลงบันทึกในสมุดคุม Big Lot ของ รปภ.","method":"1. สำรวจพื้นที่ที่ Telesale  มีการจัดเก็บใบเสร็จรับเงิน  หากมีและยังไม่นำสินค้าออก มีการคีย์ใบรับฝากหรือไม่\n2. ให้ ตรวจสอบสมุดคุมสินค้า Big Lot  โดยดูจากเลขที่ใบเสร็จ หากมีการนำออกไม่ตรงวัน มีรายการบันทึกในระบบ Deposit Goods  หรือไม่","frequency":"","pictures":"ถูกต้อง ถ่ายใบเสร็จ และ รายการที่คีย์ในระบบ"},{"no":"141","group":"DEPOSIT GOODS","checklist":"สินค้ารับฝากมีการติดป้ายใบรับฝากสินค้า หรือใบเสร็จรับเงิน แยกเก็บชัดเจน และจำนวนถูกต้อง","method":"1. หากมีสินค้าฝาก ให้สุ่มการจัดเก็บ มีการจัดเก็บแยกจากสินค้าปกติ และติดป้าย  สุ่ม  2 รายการ","frequency":"","pictures":"ให้ถ่ายในฝาก กับสินค้าที่จัดเก็บและติดป้าย  ไม่ถูกต้อง ถ่ายรายการในใบฝาก"},{"no":"142","group":"INVENTORY MANAGEMENT","checklist":"Fresh Food ทุกแผนกมีการจัดทำ Code 52 เป็นประจำทุกวัน","method":"1.เรียกรายงาน Shrinkage Report  เพื่อตรวจสอบย้อนหลัง  3  วัน","frequency":"","pictures":"ภาพพื้นที่เก็บสินค้ารอทำ 52"},{"no":"143","group":"INVENTORY MANAGEMENT","checklist":"มีการจัดทำ Code 52 อย่างถูกต้อง และ User ที่ใช้งานถูกต้องตามที่ผู้ปฏิบัติงานจริง","method":"1. เรียกรายงาน Shrinkage Report  เพื่อดูเวลาการจัดทำ  2  วัน\n2. ตรวจสอบดูจากกล่อง CCTV การ Log in - User  ของทั้ง  3  ฝ่าย","frequency":"","pictures":"ภาพสิ่งที่ตรวจพบจาก CCTV"},{"no":"144","group":"INVENTORY MANAGEMENT","checklist":"สินค้าที่จัดทำ Code 52 มีการทำลายสินค้าตามขั้นตอน","method":"1. ดู CCTV  จากรายการก่อนหน้าดูกระบวนการทำลายสินค้า\n2. ตรวจสอบการทำทิ้งใน Station 3 มีการทำลายสินค้าและทำทิ้ง","frequency":"","pictures":"ภาพสิ่งที่ตรวจพบจาก CCTV"},{"no":"145","group":"INVENTORY MANAGEMENT","checklist":"การปรับสต็อกมีการจัดทำถูกต้อง และถูก Code","method":"1. เรียกรายงานการปรับสต็อกในเดือนที่ตรวจ หรือ เดือนก่อนหน้า (สุ่มตรวจสอบ 5 วัน)\n2. แยกรายการในแต่ละแผนก \n   2.1  ตรวจสอบ Code  ที่ใช้ถูกต้องหรือไม่\n   2.2   ไม่มีการปรับแบบ split  ยอด\n   2.3  การปรับมีการอนุมัติโดย SGM","frequency":"","pictures":"ถ่ายรูปสรุปรายการที่จัดทำ"},{"no":"146","group":"INVENTORY MANAGEMENT","checklist":"ปริมาณสินค้าที่จัดเก็บติด Aging Fresh Food มีสินค้าจริง และสภาพพร้อมขาย","method":"1. ตรวจ stock  สินค้าในรายงาน CFDA (aging stock)และสุ่มตรวจนับสินค้า โดยเน้น Butchery / Samol (มีความคลาดเคลื่อนได้ไม่เกิน  1%) ดูจาก last sale / last Receive    สภาพสินค้าต้องสามารถขายได้\n2.  ดูจาก Top 10 Aging   รายงาน CFDA 60","frequency":"","pictures":"ถ่ายรายงาน CFDA  และสินค้า"},{"no":"147","group":"INVENTORY MANAGEMENT","checklist":"สินค้า Negative Stock ไม่มีสินค้าจริง และมีสถานะ Negative Stock ไม่เกิน 15 วัน","method":"1. ตรวจนับ stock สินค้าจากรายการ CFDA  40  และสุ่มตรวจนับ ดู last Sale / last receive และต้องไม่มี Nagative stock  เกิน  15 วัน","frequency":"","pictures":"ถ่ายรายงาน CFDA  และสินค้า"},{"no":"148","group":"INVENTORY MANAGEMENT","checklist":"มีสินค้าที่มี Stock Day เกิน 15 วัน (สุ่มตรวจสอบ 2 รายการ)","method":"1. สุ่มตรวจ Stock จากรายงาน Item list (DF/NF) ที่มี Stock  Day มากกว่า 15  วัน  จำนวน  2 รายการ","frequency":"","pictures":"ถ่ายรูป Daily Stock Movement  และสินค้าที่ตรวจนับ"},{"no":"149","group":"INVENTORY MANAGEMENT","checklist":"มีสินค้าที่มี Stock Day เกิน 45 วัน (สุ่มตรวจสอบ 2 รายการ)","method":"1. สุ่มตรวจ Stock จากรายงาน Item list (NF) ที่มี Stock  Day มากกว่า 15  วัน  จำนวน  2 รายการ","frequency":"","pictures":"ถ่ายรูป Daily Stock Movement  และสินค้าที่ตรวจนับ"},{"no":"150","group":"ASSORTMENT","checklist":"สินค้า Top Selling มีสต็อกสำหรับขาย","method":"1. เรียกรายงาน  Top Selling Items Detail(1000/2000/4000) ตรวจสอบ stock สินค้าของ Top Sale ของสาขา มี stock มีหรือไม่โดยดูจาก\n   - Dry Food  Top 200 items\n   - Non Food  Top 100  items\n   - F&V  Top 100 items\n   - Butchery - Top 10 items\n   - Fish - Top 10 items\n   - Frozen - Top 50 Items\n  - Bakery Top 10 items","frequency":"","pictures":"ถ่ายรูปรายงาน"},{"no":"151","group":"BIG LOT","checklist":"มีการกำหนด Cashier Till สำหรับการขาย Big Lot  และกรณีลูกค้าเข้ามาชำระค่าสินค้า จะต้องมาที่ Cashier Till เพื่อชำระค่าสินค้าด้วยตนเอง","method":"1.  สาขามีการกำหนดเครื่องที่ขาย Big Lot  หรือไม่ โดยสอบถามหมายเลข และ สุ่มดูจากใบเสร็จที่ขาย Big Lot  จากจุด Telesale\n2. ดูข้อมูลจากใบเสร็จรับเงินที่ขาย Big Lot  ในเดือนที่ตรวจ และดูเวลาที่ ใบเสร็จ และ ดู CCTV\nการชำระเงินมีลูกค้าเข้าชำระด้วยตนเองหรือไม่ กรณีที่เข้ามาชำระ (เลือก  2  รายการ)","frequency":"","pictures":"ภาพถ่าย CCTV"},{"no":"152","group":"BIG LOT","checklist":"การสินค้า Big Lot ออก ต้องมีการควบคุมการนำออกโดย Duty Mgr.","method":"1. ตรวจสอบรายงานนำสินค้าออกจากสมุด รปภ ณ จุดส่งมอบ Big Lot มีการลงรายละเอียดถูกต้อง (SM041-004) เลือก  1 รายการ\n2.  ตรวจสอบภาพจากกล่อง CCTV  ตามเวลาการนำออกจากสมุดคุม มีการบันทึกถูกต้อง และมี Duty Mgr  กำกับการนำออกถูกต้องหรือไม่","frequency":"","pictures":"ภาพถ่าย CCTV"},{"no":"153","group":"ACCOUNTING - CASH CONTROL","checklist":"จำนวนเงินคงเหลือ Petty Cash และ Advance HO ถูกต้อง","method":"1. ตรวจสอบจำนวนเงินจากรายงานเงิน Petty Cash  จากยอดเงิน Balance  ในระบบ FAC  และตรวจสอบเอกสารที่คงค้างเบิกที่สาขา  และ คงค้างเบิกจากสำนักงานใหญ่ เป็นไปตามรายงาน\n2. ตรวจสอบจำนวนเงินตามรายงาน Advance  สำนักงานใหญ่จากระบบ FAC  และตรวจนับเงิน พร้อมกับเอกสารคงค้าง เป็นไปตามรายงาน","frequency":"","pictures":"ถ่ายรูปหน้ารายงานสรุป Advance  และ Petty Cash"},{"no":"154","group":"ACCOUNTING - CASH CONTROL","checklist":"ค่าใช้จ่ายที่เบิก Petty Cash และ Advance เป็นค่าใช้จ่ายของบริษัท","method":"วิธีการตรวจสอบ เลือกจากเอกสารที่คงค้างที่สาขา\n  1. ความถูกต้องของชื่อที่อยู่บริษัท\n  2.  ค่าใช้จ่ายมีการจ่ายจริง และเป็นค่าใช้จ่ายบริษัท\n  3.   มีผู้รับเงินลงนามถูกต้อง","frequency":"","pictures":"ถูกต้องถ่ายรูปตัวอย่างเอกสารที่มีมูลค่าสูง  ไม่ถูกต้อง ถ่ายรูปเอกสารที่ไม่ถูกต้อง"},{"no":"155","group":"ACCOUNTING - CASH CONTROL","checklist":"การเบิก Advance HO มีการเคลียร์ภายใน 7 วัน และการเบิก Advance Petty Cash มีการเคลียร์ภายใน 3 วัน","method":"เอกสารในเดือนที่ตรวจสอบ และเอกสารคงค้างที่สาขา\n1.  ตรวจระยะเวลาในการเบิก เทียบกับระยะเวลาในการคืนมีระยะเวลาถูกต้องหรือไม่","frequency":"","pictures":"ถ่ายรูปเอกสารที่ตรวจสอบ"},{"no":"156","group":"ACCOUNTING - CASH CONTROL","checklist":"เงินมัดจำค่าสินค้ามียอดตรงกับรายการที่บันทึกบัญชี GL และมีการตรวจสอบของ ACC","method":"1. ตรวจยอดคงเหลือตาม GL  ตรงกับยอดคงเหลือที่จุด Telesale\n2.  เอกสารมีการจัดทำถูกต้องตรงกับระเบียบ (SM002-006 เงินมัดจำค่าสินค้า)\n3. Accounting  มีการจัดทำรายงานเงินมัดจำและบันทึกเป็นปัจจุบัน\n4.ตรวจสอบความผิดปกติของรายการมัดจำ เช่น มีลูกค้ารายเดียวกันแต่มีการมัดจำหลายใบ ให้สอบถามข้อมูลว่าเกิดจากสาเหตุใด","frequency":"","pictures":"ถ่ายรูปยอดคงเหลือใน GL"},{"no":"157","group":"ACCOUNTING - CASH CONTROL","checklist":"รายได้ค่าเช่า และรายได้อื่นๆ มีการจัดการที่ถูกต้อง","method":"1.  Other Income\n    1.1  ดึงรายงาน 3  เดือนก่อนหน้าเพื่อดูกว่ามีรายการรับเงินประเภทอะไรบ้าง  และมีการรับอย่างสม่ำเสมอในเดือนปัจจุบันหรือไม่\n    1.2  หากพบว่าไม่มียอดให้สอบถามจากผู้จ่ายเงิน(ผู้เช่า)\n2.  ค่าเช่า (Simpliciti)\n   2.1  มีรายงานในระบบ ว่ายอดค้างจ่ายค่าเช่าหรือไม่\n   2.2  ยืนยันยอดจากผู้เช่าที่ค้างจ่าย","frequency":"","pictures":"ถ่ายรูปรายงาน"},{"no":"158","group":"ACCOUNTING - FIXED ASSETS","checklist":"Fixed Asset มีสถานะถูกต้อง (สุ่มตรวจสอบ 3  รายการ)","method":"1,  ตรวจสอบพื้นที่สาขามีการจัดเก็บ Fix Asset ที่เหลือใช้จัดวางมีรายการอะไรบ้าง ให้สุ่มรายการมา  3 รายการ\n2. ตรวจสอบสถานะของในระบบ FAC ตรงกันหรือไม่ \n3. สภาพ Fix Asset  ที่ต้องการขายมีการจัดทำรายงานและเตรียมการขายหรือไม่","frequency":"","pictures":"ถ่ายรูป Fix Asset  และสถานะใน FAC"},{"no":"159","group":"ACCOUNTING - FIXED ASSETS","checklist":"Fixed Asset มีการใช้งานจริง และติด Barcode ครบถ้วน (สุ่มตรวจสอบ 3  รายการ)","method":"1. เลือกรายการ Fix Assets  ในระบบ FAC   3 รายการ\n2. ตรวจสอบมีทรัพย์สินนั้นหรือไม่  และมีการติด Barcode ถูกต้อง","frequency":"","pictures":"ถ่ายรูป Fix Asset  ในระบบ และที่ตรวจนับ"},{"no":"160","group":"ACCOUNTING - FIXED ASSETS","checklist":"Fixed Asset ที่มีการซ่อมแซมมีการจัดทำถูกต้อง","method":"","frequency":"","pictures":""},{"no":"161","group":"KPI SUMMARY","checklist":"OTIF ถึง 95% ย้อนหลัง 1 วัน","method":"","frequency":"","pictures":"ถ่ายรูปรายงาน"},{"no":"162","group":"KPI SUMMARY","checklist":"Sales MTD ผ่าน Budget","method":"ดูรายงาน Sales MTD","frequency":"","pictures":"ถ่ายรูปรายงาน"},{"no":"163","group":"KPI SUMMARY","checklist":"Shrinkage % to sales ต่ำกว่า Target","method":"ดูรายงาน Shkinkage % to Sale (MTD) ในเดือนที่ตรวจสอบ \nhttp://raadw-app.siammakro.co.th:7777/analytics/saw.dll?PortalPages&PortalPath=%2Fshared%2FMakro_RA_Report%2F_portal%2FStore%20Operation%2FShrinkage&Page=Shrinkage%20Summary%20L1&P1=dashboard&Action=Navigate&ViewState=n2hqqaslilp1rfne0ibns13jl6&P16=NavRuleDefault&NavFromViewID=d%3Adashboard~p%3Ai5chklls36rf909l","frequency":"","pictures":"ถ่ายรูปรายงาน"}];
+
+var USERS = {
+  "admin": { pass: "admin", role: "Admin", display: "Administrator" },
+  "soa":   { pass: "makroho", role: "User", display: "SOA User" }
+};
+
+var GROUP_ICONS = {
+  "\u0e25\u0e32\u0e19\u0e08\u0e2d\u0e14 \u0e41\u0e25\u0e30\u0e1e\u0e37\u0e49\u0e19\u0e17\u0e35\u0e48\u0e19\u0e2d\u0e01\u0e2d\u0e32\u0e04\u0e32\u0e23": "\uD83C\uDD7F\uFE0F",
+  "\u0e1b\u0e23\u0e30\u0e15\u0e39\u0e40\u0e02\u0e49\u0e32 - \u0e2d\u0e2d\u0e01 \u0e25\u0e39\u0e01\u0e04\u0e49\u0e32": "\uD83D\uDEAA",
+  "\u0e08\u0e38\u0e14\u0e1a\u0e23\u0e34\u0e01\u0e32\u0e23\u0e25\u0e39\u0e01\u0e04\u0e49\u0e32 CUSTOMER SERVICE": "\uD83C\uDF9F\uFE0F",
+  "\u0e0a\u0e48\u0e2d\u0e07\u0e0a\u0e33\u0e23\u0e30\u0e40\u0e07\u0e34\u0e19 CASHIER TILL": "\uD83D\uDCB3",
+  "\u0e08\u0e38\u0e14\u0e41\u0e25\u0e01\u0e02\u0e2d\u0e07\u0e41\u0e16\u0e21": "\uD83C\uDF81",
+  "BAKERY": "\uD83E\uDD50",
+  "FRUIT & VEGETABLE": "\uD83E\uDD66",
+  "FISH & SEA FOOD": "\uD83D\uDC1F",
+  "BUTCHERY": "\uD83E\uDD69",
+  "FROZEN & DAIRY": "\uD83E\uDDCA",
+  "READY TO EAT (RTE)": "\uD83C\uDF71",
+  "BACK AREA & COLD ROOM": "\uD83C\uDFED",
+  "DRY FOOD": "\uD83E\uDD6B",
+  "NON FOOD": "\uD83D\uDED2",
+  "GOODS RECEIVING": "\uD83D\uDCE6",
+  "TENT": "\u26FA",
+  "CONTAINER": "\uD83D\uDCEB",
+  "O2O": "\uD83D\uDCF2",
+  "SAFETY": "\u26A0\uFE0F",
+  "DEPOSIT GOODS": "\uD83D\uDD10",
+  "INVENTORY MANAGEMENT": "\uD83D\uDCCA",
+  "ASSORTMENT": "\uD83D\uDDC2\uFE0F",
+  "BIG LOT": "\uD83C\uDFD7\uFE0F",
+  "ACCOUNTING - CASH CONTROL": "\uD83D\uDCB0",
+  "ACCOUNTING - FIXED ASSETS": "\uD83C\uDFE6",
+  "KPI SUMMARY": "\uD83D\uDCC8"
+};
+
+var currentUser = null;
+var currentGroup = "all";
+var searchTimeout = null;
+var sidebarCollapsed = false;
+var mobileSidebarOpen = false;
+
+/* ====== LOGIN ====== */
+function doLogin() {
+  var u = document.getElementById("username").value.trim().toLowerCase();
+  var p = document.getElementById("password").value;
+  if (USERS[u] && USERS[u].pass === p) {
+    currentUser = { username: u, role: USERS[u].role, display: USERS[u].display };
+    document.getElementById("login-error").style.display = "none";
+    document.getElementById("login-screen").style.display = "none";
+    var appEl = document.getElementById("app");
+    appEl.style.display = "flex";
+    appEl.classList.add("visible");
+    document.getElementById("user-display").textContent = currentUser.display;
+    document.getElementById("role-display").textContent = currentUser.role;
+    initApp();
+  } else {
+    document.getElementById("login-error").style.display = "block";
+    document.getElementById("password").value = "";
+  }
+}
+
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") {
+    var ls = document.getElementById("login-screen");
+    if (ls && ls.style.display !== "none") doLogin();
+  }
+});
+
+function doLogout() {
+  currentUser = null;
+  closeMobileSidebar();
+  var appEl = document.getElementById("app");
+  appEl.style.display = "none";
+  appEl.classList.remove("visible");
+  document.getElementById("login-screen").style.display = "flex";
+  document.getElementById("username").value = "";
+  document.getElementById("password").value = "";
+  document.getElementById("login-error").style.display = "none";
+}
+
+function initApp() {
+  buildSidebar();
+  showAll();
+}
+
+/* ====== SIDEBAR CONTROLS ====== */
+function toggleSidebar() {
+  var sb = document.getElementById("sidebar");
+  var btn = document.getElementById("collapse-btn");
+  sidebarCollapsed = !sidebarCollapsed;
+  if (sidebarCollapsed) {
+    sb.classList.add("collapsed");
+    btn.innerHTML = "&#9654;";
+    btn.title = "ขยายเมนู";
+  } else {
+    sb.classList.remove("collapsed");
+    btn.innerHTML = "&#9664;";
+    btn.title = "ย่อเมนู";
+  }
+}
+
+function toggleMobileSidebar() {
+  if (mobileSidebarOpen) closeMobileSidebar();
+  else openMobileSidebar();
+}
+
+function openMobileSidebar() {
+  mobileSidebarOpen = true;
+  document.getElementById("sidebar").classList.add("open");
+  document.getElementById("sidebar-overlay").classList.add("visible");
+  document.getElementById("hamburger-btn").classList.add("open");
+}
+
+function closeMobileSidebar() {
+  mobileSidebarOpen = false;
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebar-overlay").classList.remove("visible");
+  document.getElementById("hamburger-btn").classList.remove("open");
+}
+
+/* ====== DATA HELPERS ====== */
+function getGroups() {
+  var seen = {}, groups = [];
+  for (var i = 0; i < DATA.length; i++) {
+    var g = DATA[i].group;
+    if (g && !seen[g]) { seen[g] = true; groups.push(g); }
+  }
+  return groups;
+}
+
+function buildSidebar() {
+  var groups = getGroups();
+  var gl = document.getElementById("group-list");
+  gl.innerHTML = "";
+  for (var i = 0; i < groups.length; i++) {
+    (function(g, idx) {
+      var count = 0;
+      for (var k = 0; k < DATA.length; k++) if (DATA[k].group === g) count++;
+      var icon = GROUP_ICONS[g] || "\uD83D\uDCCC";
+      var btn = document.createElement("button");
+      btn.className = "group-btn";
+      btn.id = "btn-g-" + idx;
+      btn.title = g;
+      btn.innerHTML =
+        '<div class="group-icon-wrap" style="background:var(--surface2)">' + icon + '</div>' +
+        '<span class="group-label">' + escHtml(g) + '</span>' +
+        '<span class="group-count">' + count + '</span>';
+      btn.onclick = function() { showGroup(g, idx); closeMobileSidebar(); };
+      gl.appendChild(btn);
+    })(groups[i], i);
+  }
+}
+
+function setActiveBtn(id) {
+  var btns = document.querySelectorAll(".group-btn");
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove("active");
+  var el = document.getElementById(id);
+  if (el) { el.classList.add("active"); el.scrollIntoView({ block: "nearest", behavior: "smooth" }); }
+}
+
+/* ====== VIEWS ====== */
+function showAll() {
+  currentGroup = "all";
+  setActiveBtn("btn-all");
+  var ca = document.getElementById("content-area");
+  ca.scrollTop = 0;
+  var groups = getGroups();
+  var html = "";
+
+  if (currentUser && currentUser.role === "Admin") {
+    var withFreq = 0, withPhoto = 0;
+    for (var i = 0; i < DATA.length; i++) {
+      if (DATA[i].frequency && DATA[i].frequency !== "") withFreq++;
+      if (DATA[i].pictures && DATA[i].pictures !== "") withPhoto++;
+    }
+    html += '<div id="admin-panel"><div class="admin-panel-title">&#9889; Admin Dashboard</div>';
+    html += '<div class="admin-stats">';
+    html += '<div class="admin-stat"><div class="n">' + DATA.length + '</div><div class="l">รายการทั้งหมด</div></div>';
+    html += '<div class="admin-stat"><div class="n">' + groups.length + '</div><div class="l">หมวดหมู่</div></div>';
+    html += '<div class="admin-stat"><div class="n">' + withFreq + '</div><div class="l">มีความถี่ตรวจ</div></div>';
+    html += '<div class="admin-stat"><div class="n">' + withPhoto + '</div><div class="l">มีคำแนะนำรูป</div></div>';
+    html += '</div></div>';
+  }
+
+  html += renderSearchBar();
+
+  var daily = 0;
+  for (var i = 0; i < DATA.length; i++) if (DATA[i].frequency && DATA[i].frequency.indexOf("\u0e40\u0e0a\u0e49\u0e32") >= 0) daily++;
+  html += '<div class="stats-row">';
+  html += '<div class="stat-card"><div class="num">' + DATA.length + '</div><div class="lbl">รายการทั้งหมด</div></div>';
+  html += '<div class="stat-card"><div class="num">' + groups.length + '</div><div class="lbl">หมวดหมู่</div></div>';
+  html += '<div class="stat-card"><div class="num">' + daily + '</div><div class="lbl">ตรวจ 2 รอบ/วัน</div></div>';
+  html += '</div>';
+
+  html += '<div class="all-groups fade-in">';
+  for (var i = 0; i < groups.length; i++) {
+    var g = groups[i];
+    var items = [];
+    for (var k = 0; k < DATA.length; k++) if (DATA[k].group === g) items.push(DATA[k]);
+    var icon = GROUP_ICONS[g] || "\uD83D\uDCCC";
+    html += '<div class="group-section">';
+    html += '<div class="group-section-header"><span style="font-size:18px">' + icon + '</span><h3>' + escHtml(g) + '</h3><span class="group-count">' + items.length + ' รายการ</span></div>';
+    html += '<div class="group-items">';
+    for (var j = 0; j < items.length; j++) {
+      html += '<div class="group-item-row" data-no="' + items[j].no + '"><div class="item-no">' + items[j].no + '</div><div class="item-text">' + escHtml(items[j].checklist) + '</div><span style="color:var(--text3);font-size:16px">&rsaquo;</span></div>';
+    }
+    html += '</div></div>';
+  }
+  html += '</div>';
+  ca.innerHTML = html;
+  setupSearch();
+  ca.querySelectorAll(".group-item-row").forEach(function(el) {
+    el.addEventListener("click", function() { openItem(this.dataset.no); });
+  });
+}
+
+function showGroup(groupName, idx) {
+  currentGroup = groupName;
+  setActiveBtn("btn-g-" + idx);
+  var items = [];
+  for (var i = 0; i < DATA.length; i++) if (DATA[i].group === groupName) items.push(DATA[i]);
+  var icon = GROUP_ICONS[groupName] || "\uD83D\uDCCC";
+  var ca = document.getElementById("content-area");
+  ca.scrollTop = 0;
+  var html = renderSearchBar();
+  html += '<div class="group-header fade-in"><div class="group-header-icon">' + icon + '</div><div class="group-header-info"><h2>' + escHtml(groupName) + '</h2><p>' + items.length + ' รายการตรวจสอบ</p></div></div>';
+  html += '<div class="checklist-grid fade-in">';
+  for (var i = 0; i < items.length; i++) html += renderCheckCard(items[i], "");
+  html += '</div>';
+  ca.innerHTML = html;
+  setupSearch();
+  ca.querySelectorAll(".check-card").forEach(function(card) {
+    card.addEventListener("click", function(e) { toggleCard(this); });
+  });
+}
+
+function renderCheckCard(item, hl) {
+  var freq = item.frequency && item.frequency !== "" ? item.frequency : "";
+  var freqBadge = freq ? '<div class="freq-badge">' + escHtml(freq.substring(0,24)) + (freq.length > 24 ? "..." : "") + '</div>' : "";
+  var title = hl ? highlightText(escHtml(item.checklist), hl) : escHtml(item.checklist);
+  var body = "";
+  if (item.method && item.method !== "") {
+    body += '<div class="detail-section"><div class="detail-label"><span class="dot"></span>วิธีการตรวจสอบ</div><div class="detail-text">' + escHtml(item.method) + '</div></div>';
+  }
+  if (item.pictures && item.pictures !== "") {
+    body += '<div class="detail-section"><div class="photo-guide"><span style="font-size:15px;flex-shrink:0">&#128247;</span><span>' + escHtml(item.pictures) + '</span></div></div>';
+  }
+  if (!item.method && !item.pictures) body += '<div class="detail-text" style="color:var(--text3)">ไม่มีรายละเอียดเพิ่มเติม</div>';
+  return '<div class="check-card" id="card-' + item.no + '">' +
+    '<div class="card-header"><div class="card-no">' + item.no + '</div>' +
+    '<div class="card-title-wrap"><div class="card-title">' + title + '</div>' + freqBadge + '</div>' +
+    '<span class="card-expand-icon">&#9660;</span></div>' +
+    '<div class="card-body">' + body + '</div></div>';
+}
+
+function toggleCard(el) { el.classList.toggle("expanded"); }
+
+function openItem(no) {
+  var item = null;
+  for (var i = 0; i < DATA.length; i++) if (DATA[i].no === no) { item = DATA[i]; break; }
+  if (!item) return;
+  var groups = getGroups();
+  var idx = groups.indexOf(item.group);
+  showGroup(item.group, idx);
+  setTimeout(function() {
+    var card = document.getElementById("card-" + no);
+    if (card) { card.classList.add("expanded"); card.scrollIntoView({ behavior: "smooth", block: "center" }); }
+  }, 120);
+}
+
+/* ====== SEARCH ====== */
+function renderSearchBar() {
+  return '<div class="search-bar-wrap"><div class="search-bar"><span style="color:var(--text3);font-size:17px;flex-shrink:0">&#128269;</span><input type="search" id="search-input" placeholder="\u0e04\u0e49\u0e19\u0e2b\u0e32\u0e2b\u0e31\u0e27\u0e02\u0e49\u0e2d\u0e15\u0e23\u0e27\u0e08\u0e2a\u0e2d\u0e1a..." oninput="onSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false"><button class="search-clear" id="search-clear" onclick="clearSearch()">&#10005;</button></div></div>';
+}
+
+function setupSearch() {}
+
+function escHtml(s) {
+  if (!s) return "";
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function highlightText(text, q) {
+  if (!q) return text;
+  var escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return text.replace(new RegExp(escaped, "gi"), function(m) { return "<mark>" + m + "</mark>"; });
+}
+
+function onSearch(val) {
+  var clr = document.getElementById("search-clear");
+  if (clr) clr.style.display = val ? "flex" : "none";
+  clearTimeout(searchTimeout);
+  searchTimeout = setTimeout(function() { doSearch(val); }, 220);
+}
+
+function doSearch(val) {
+  var q = val.trim().toLowerCase();
+  var ca = document.getElementById("content-area");
+  if (!q) {
+    if (currentGroup === "all") showAll();
+    else { var groups = getGroups(); showGroup(currentGroup, groups.indexOf(currentGroup)); }
+    return;
+  }
+  var pool = currentGroup === "all" ? DATA : DATA.filter(function(d) { return d.group === currentGroup; });
+  var results = [];
+  for (var i = 0; i < pool.length; i++) {
+    var d = pool[i];
+    if (d.checklist.toLowerCase().indexOf(q) >= 0 || d.method.toLowerCase().indexOf(q) >= 0 ||
+        d.group.toLowerCase().indexOf(q) >= 0 || d.no.indexOf(q) >= 0) results.push(d);
+  }
+  var uniqueGroups = {};
+  for (var i = 0; i < results.length; i++) uniqueGroups[results[i].group] = 1;
+  var html = renderSearchBar();
+  html += '<div class="stats-row">';
+  html += '<div class="stat-card"><div class="num">' + results.length + '</div><div class="lbl">ผลการค้นหา</div></div>';
+  html += '<div class="stat-card"><div class="num">' + Object.keys(uniqueGroups).length + '</div><div class="lbl">หมวดหมู่</div></div>';
+  html += '</div>';
+  if (results.length === 0) {
+    html += '<div class="empty-state"><div class="empty-icon">&#128269;</div><div class="empty-text">ไม่พบรายการที่ค้นหา</div><div class="empty-sub">ลองค้นด้วยคำอื่น หรือเลือกหมวดหมู่จากเมนูซ้าย</div></div>';
+  } else {
+    html += '<div class="fade-in">';
+    for (var i = 0; i < results.length; i++) {
+      var item = results[i];
+      var icon = GROUP_ICONS[item.group] || "\uD83D\uDCCC";
+      html += '<div class="search-result-card" data-no="' + item.no + '">';
+      html += '<div class="sr-meta"><span class="sr-no">#' + item.no + '</span><span class="sr-group-tag">' + icon + ' ' + escHtml(item.group) + '</span></div>';
+      html += '<div class="sr-title">' + highlightText(escHtml(item.checklist), val) + '</div>';
+      if (item.method) html += '<div class="sr-method">' + highlightText(escHtml(item.method.substring(0, 130)), val) + (item.method.length > 130 ? "..." : "") + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+  ca.innerHTML = html;
+  var inp = document.getElementById("search-input");
+  if (inp) { inp.value = val; inp.focus(); try { inp.setSelectionRange(val.length, val.length); } catch(e){} }
+  var clr = document.getElementById("search-clear");
+  if (clr) clr.style.display = val ? "flex" : "none";
+  ca.querySelectorAll(".search-result-card").forEach(function(el) {
+    el.addEventListener("click", function() { openItem(this.dataset.no); });
+  });
+}
+
+function clearSearch() {
+  var inp = document.getElementById("search-input");
+  if (inp) { inp.value = ""; onSearch(""); }
+}
+</script>
+</body>
+</html>
